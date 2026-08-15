@@ -10949,6 +10949,65 @@ body.vp-lightbox-open{
 }
 </style>
 
+
+<style id="andy-visual-playground-swipe-drag-v35-css">
+/* Visual Playground: misma estética, ahora admite drag con mouse/trackpad y swipe táctil. */
+#design .design-showcase-viewport{
+  touch-action:pan-y pinch-zoom;
+  cursor:grab;
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+#design .design-showcase-viewport.is-dragging{cursor:grabbing}
+#design .design-showcase-viewport.is-dragging .design-showcase-card{cursor:grabbing !important}
+#design .design-showcase-card,
+#design .design-showcase-card img{
+  -webkit-user-drag:none;
+  user-select:none;
+}
+@media (pointer:coarse){
+  #design .design-showcase-viewport{cursor:default}
+}
+</style>
+
+
+<style id="andy-visual-playground-trackpad-v36-css">
+#design .design-showcase-viewport{
+  overscroll-behavior-x:contain;
+}
+</style>
+
+
+<style id="andy-mobile-selected-video-bg-v9-css">
+/* =========================================================
+   v9 — iPHONE: SOLO VIDEO ACTIVO + SU FONDO
+   Desktop no cambia.
+========================================================= */
+@media (max-width:700px), (pointer:coarse){
+
+  /* Volvemos a permitir el fondo en teléfono, pero solo con UNA capa. */
+  #experiments .carousel-video-bg{
+    display:block !important;
+    pointer-events:none !important;
+  }
+
+  #experiments .carousel-bg-b{
+    display:none !important;
+  }
+
+  #experiments .carousel-bg-a{
+    display:block !important;
+    opacity:0 !important;
+    transition:opacity .28s ease !important;
+  }
+
+  #experiments .carousel-bg-a.is-active-bg{
+    opacity:1 !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -13068,12 +13127,16 @@ window.addEventListener('load',()=>{
   function warmActive(){
     if(!experiments) return;
     const active = experiments.querySelector('.exp-card.carousel-active video');
-    const prev = experiments.querySelector('.exp-card.carousel-prev video');
-    const next = experiments.querySelector('.exp-card.carousel-next video');
-    [active,prev,next].filter(Boolean).forEach(v=>{
-      if(v.preload!=='metadata'){
-        v.preload='metadata';
-        try{v.load()}catch(e){}
+
+    videos.forEach(v=>{
+      if(v === active){
+        if(v.preload !== 'auto'){
+          v.preload='auto';
+          try{v.load()}catch(e){}
+        }
+      }else{
+        try{v.pause()}catch(e){}
+        v.preload='none';
       }
     });
   }
@@ -13091,7 +13154,7 @@ window.addEventListener('load',()=>{
     io.observe(experiments);
   }
 
-  /* Cuando cambie la card activa, prepara solo vecinas. */
+  /* Cuando cambie la card activa, prepara SOLO la seleccionada. */
   if(experiments){
     const mo = new MutationObserver(()=>warmActive());
     cards.forEach(c=>mo.observe(c,{attributes:true,attributeFilter:['class']}));
@@ -13109,7 +13172,7 @@ window.addEventListener('load',()=>{
 </script>
 
 
-<script id="andy-design-showcase-js-v34">
+<script id="andy-design-showcase-js-v36-trackpad-swipe">
 (() => {
   const section=document.querySelector('.design-showcase'); if(!section)return;
   const cards=[...section.querySelectorAll('.design-showcase-card')];
@@ -13119,19 +13182,151 @@ window.addEventListener('load',()=>{
   const type=document.getElementById('designShowcaseType');
   const count=document.getElementById('designShowcaseCount');
   const viewport=document.getElementById('designShowcaseViewport');
-  let active=Math.min(3,cards.length-1),startX=null,moved=false;
+
+  let active=Math.min(3,cards.length-1);
+  let pointerId=null;
+  let startX=0;
+  let startY=0;
+  let lastX=0;
+  let dragging=false;
+  let horizontalGesture=false;
+  let suppressClick=false;
+
   const norm=d=>{const n=cards.length;if(d>n/2)d-=n;if(d<-n/2)d+=n;return d};
+
   function render(){
-    cards.forEach((card,i)=>{const pos=norm(i-active);if(Math.abs(pos)<=3){card.dataset.pos=String(pos);card.removeAttribute('data-hidden');card.style.pointerEvents=Math.abs(pos)<=1?'auto':'none'}else{card.removeAttribute('data-pos');card.dataset.hidden='true'}});
-    const c=cards[active];title.textContent=c.dataset.title||'';type.textContent=c.dataset.type||'';count.textContent=String(active+1).padStart(2,'0')+' / '+String(cards.length).padStart(2,'0');
+    cards.forEach((card,i)=>{
+      const pos=norm(i-active);
+      if(Math.abs(pos)<=3){
+        card.dataset.pos=String(pos);
+        card.removeAttribute('data-hidden');
+        card.style.pointerEvents=Math.abs(pos)<=1?'auto':'none';
+      }else{
+        card.removeAttribute('data-pos');
+        card.dataset.hidden='true';
+      }
+    });
+    const c=cards[active];
+    if(!c)return;
+    title.textContent=c.dataset.title||'';
+    type.textContent=c.dataset.type||'';
+    count.textContent=String(active+1).padStart(2,'0')+' / '+String(cards.length).padStart(2,'0');
   }
-  function go(d){active=(active+d+cards.length)%cards.length;render()}
-  prev?.addEventListener('click',()=>go(-1));next?.addEventListener('click',()=>go(1));
-  cards.forEach((c,i)=>c.addEventListener('click',()=>{if(i!==active){active=i;render()}}));
-  viewport?.addEventListener('pointerdown',e=>{startX=e.clientX;moved=false});
-  viewport?.addEventListener('pointermove',e=>{if(startX!==null&&Math.abs(e.clientX-startX)>12)moved=true});
-  viewport?.addEventListener('pointerup',e=>{if(startX===null)return;const dx=e.clientX-startX;if(moved&&Math.abs(dx)>45)go(dx<0?1:-1);startX=null;moved=false});
-  viewport?.addEventListener('pointercancel',()=>{startX=null;moved=false});
+
+  function go(d){
+    active=(active+d+cards.length)%cards.length;
+    render();
+  }
+
+  prev?.addEventListener('click',()=>go(-1));
+  next?.addEventListener('click',()=>go(1));
+
+  cards.forEach((c,i)=>c.addEventListener('click',e=>{
+    if(suppressClick){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return;
+    }
+    if(i!==active){active=i;render()}
+  },true));
+
+  if(viewport){
+
+    /* TRACKPAD / MAGIC MOUSE
+       El gesto horizontal de dos dedos llega como wheel(deltaX),
+       no como pointermove. Acumulamos el gesto y cambiamos una sola
+       tarjeta por swipe para evitar saltarnos varias de golpe. */
+    let wheelAccum=0;
+    let wheelLocked=false;
+    let wheelResetTimer=null;
+
+    viewport.addEventListener('wheel',e=>{
+      const dx=e.deltaX;
+      const dy=e.deltaY;
+
+      /* Solo interceptamos un gesto claramente horizontal.
+         El scroll vertical de la página sigue funcionando normal. */
+      if(Math.abs(dx) <= Math.abs(dy) * 1.08) return;
+
+      e.preventDefault();
+
+      if(wheelLocked) return;
+
+      wheelAccum += dx;
+
+      clearTimeout(wheelResetTimer);
+      wheelResetTimer=setTimeout(()=>{
+        wheelAccum=0;
+      },120);
+
+      if(Math.abs(wheelAccum) >= 34){
+        go(wheelAccum>0 ? 1 : -1);
+        wheelAccum=0;
+        wheelLocked=true;
+
+        setTimeout(()=>{
+          wheelLocked=false;
+        },420);
+      }
+    },{passive:false});
+
+    viewport.addEventListener('pointerdown',e=>{
+      if(e.button!==undefined && e.button!==0)return;
+      pointerId=e.pointerId;
+      startX=lastX=e.clientX;
+      startY=e.clientY;
+      dragging=true;
+      horizontalGesture=false;
+      suppressClick=false;
+      viewport.classList.add('is-dragging');
+      try{viewport.setPointerCapture(pointerId)}catch(err){}
+    });
+
+    viewport.addEventListener('pointermove',e=>{
+      if(!dragging || e.pointerId!==pointerId)return;
+      const dx=e.clientX-startX;
+      const dy=e.clientY-startY;
+      lastX=e.clientX;
+
+      if(!horizontalGesture && Math.abs(dx)>10 && Math.abs(dx)>Math.abs(dy)*1.15){
+        horizontalGesture=true;
+      }
+      if(horizontalGesture){
+        e.preventDefault();
+        suppressClick=true;
+      }
+    },{passive:false});
+
+    const finish=e=>{
+      if(!dragging || (e.pointerId!==undefined && e.pointerId!==pointerId))return;
+      const endX=e.clientX ?? lastX;
+      const dx=endX-startX;
+
+      if(horizontalGesture && Math.abs(dx)>38){
+        go(dx<0?1:-1);
+        suppressClick=true;
+        setTimeout(()=>{suppressClick=false},80);
+      }else{
+        setTimeout(()=>{suppressClick=false},0);
+      }
+
+      dragging=false;
+      horizontalGesture=false;
+      viewport.classList.remove('is-dragging');
+      try{viewport.releasePointerCapture(pointerId)}catch(err){}
+      pointerId=null;
+    };
+
+    viewport.addEventListener('pointerup',finish);
+    viewport.addEventListener('pointercancel',finish);
+    viewport.addEventListener('lostpointercapture',()=>{
+      dragging=false;
+      horizontalGesture=false;
+      viewport.classList.remove('is-dragging');
+      pointerId=null;
+    });
+  }
+
   render();
 })();
 </script>
@@ -13321,6 +13516,13 @@ window.addEventListener('load',()=>{
 (() => {
   const section = document.getElementById('experiments');
   if (!section) return;
+
+  /* Desktop conserva el sistema original.
+     En teléfono usa el sincronizador ligero v9 de más abajo. */
+  const mobileSelectedOnly =
+    window.matchMedia('(max-width:700px)').matches ||
+    window.matchMedia('(pointer:coarse)').matches;
+  if (mobileSelectedOnly) return;
 
   const cards = [...section.querySelectorAll('.exp-card')];
   const bgA = section.querySelector('.carousel-bg-a');
@@ -14300,6 +14502,229 @@ window.addEventListener('load',()=>{
   window.addEventListener('pageshow', play);
   /* Low Power Mode puede bloquear autoplay: el primer toque lo reactiva. */
   document.addEventListener('touchstart', play, {passive:true});
+})();
+</script>
+
+
+<script id="andy-mobile-selected-video-bg-v9-js">
+(() => {
+  const isPhone =
+    window.matchMedia('(max-width:700px)').matches ||
+    window.matchMedia('(pointer:coarse)').matches;
+
+  if (!isPhone) return;
+
+  const section = document.getElementById('experiments');
+  if (!section) return;
+
+  const cards = [...section.querySelectorAll('.exp-card')];
+  const fronts = cards.map(c => c.querySelector('video')).filter(Boolean);
+  const bg = section.querySelector('.carousel-bg-a');
+  if (!cards.length || !bg) return;
+
+  let inView = false;
+  let token = 0;
+  let currentFront = null;
+  let currentSrc = '';
+
+  /* En teléfono, ningún video del carrusel pide datos por adelantado. */
+  fronts.forEach(v => {
+    v.preload = 'none';
+    v.muted = true;
+    v.playsInline = true;
+    try { v.pause(); } catch(e) {}
+  });
+
+  bg.preload = 'none';
+  bg.muted = true;
+  bg.loop = true;
+  bg.playsInline = true;
+  bg.removeAttribute('src');
+  try { bg.load(); } catch(e) {}
+
+  function getActive(){
+    const card =
+      section.querySelector('.exp-card.carousel-active') ||
+      cards[0];
+    return card?.querySelector('video') || null;
+  }
+
+  function unloadNonSelected(selected){
+    fronts.forEach(v => {
+      if (v === selected) return;
+      try { v.pause(); } catch(e) {}
+      v.preload = 'none';
+    });
+  }
+
+  function waitPlayable(video, localToken){
+    return new Promise(resolve => {
+      if (!video || localToken !== token) return resolve(false);
+      if (video.readyState >= 2) return resolve(true);
+
+      let done = false;
+      const finish = ok => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        video.removeEventListener('canplay', onReady);
+        video.removeEventListener('loadeddata', onReady);
+        resolve(ok && localToken === token);
+      };
+      const onReady = () => finish(true);
+
+      video.addEventListener('canplay', onReady, {once:true});
+      video.addEventListener('loadeddata', onReady, {once:true});
+
+      const timer = setTimeout(() => finish(video.readyState >= 2), 2400);
+    });
+  }
+
+  async function syncSelected(){
+    const localToken = ++token;
+    const selected = getActive();
+    currentFront = selected;
+
+    unloadNonSelected(selected);
+
+    if (!inView || !selected){
+      fronts.forEach(v => {
+        try { v.pause(); } catch(e) {}
+      });
+      try { bg.pause(); } catch(e) {}
+      bg.classList.remove('is-active-bg');
+      return;
+    }
+
+    /* 1. Cargar y reproducir SOLO el video seleccionado. */
+    selected.preload = 'auto';
+    selected.muted = true;
+    selected.playsInline = true;
+
+    if (selected.readyState < 2){
+      try { selected.load(); } catch(e) {}
+    }
+
+    await waitPlayable(selected, localToken);
+    if (localToken !== token || !inView) return;
+
+    try {
+      const p = selected.play();
+      if (p && typeof p.catch === 'function') p.catch(()=>{});
+    } catch(e) {}
+
+    /* 2. Cargar SOLO su copia de fondo. */
+    const src =
+      selected.currentSrc ||
+      selected.getAttribute('src') ||
+      selected.querySelector('source')?.src ||
+      '';
+
+    if (!src) return;
+
+    if (src !== currentSrc){
+      currentSrc = src;
+      bg.classList.remove('is-active-bg');
+      try { bg.pause(); } catch(e) {}
+
+      bg.preload = 'auto';
+      bg.src = src;
+      try { bg.load(); } catch(e) {}
+    }
+
+    await waitPlayable(bg, localToken);
+    if (localToken !== token || !inView || selected !== currentFront) return;
+
+    /* Arrancan prácticamente en el mismo fotograma. */
+    try {
+      if (Number.isFinite(selected.currentTime)){
+        bg.currentTime = selected.currentTime;
+      }
+    } catch(e) {}
+
+    try {
+      const p = bg.play();
+      if (p && typeof p.catch === 'function') p.catch(()=>{});
+    } catch(e) {}
+
+    requestAnimationFrame(() => {
+      if (localToken === token && inView){
+        bg.classList.add('is-active-bg');
+      }
+    });
+  }
+
+  /* Solo empieza a pedir datos cuando Editing & Motion está realmente visible. */
+  if ('IntersectionObserver' in window){
+    const io = new IntersectionObserver(([entry]) => {
+      inView = !!entry?.isIntersecting;
+
+      if (inView){
+        syncSelected();
+      }else{
+        ++token;
+        fronts.forEach(v => {
+          try { v.pause(); } catch(e) {}
+          v.preload='none';
+        });
+        try { bg.pause(); } catch(e) {}
+        bg.preload='none';
+        bg.classList.remove('is-active-bg');
+      }
+    }, {
+      rootMargin:'80px 0px',
+      threshold:.08
+    });
+
+    io.observe(section);
+  } else {
+    inView = true;
+    syncSelected();
+  }
+
+  /* Al cambiar de tarjeta: anterior se detiene y solo entra la nueva pareja. */
+  const mo = new MutationObserver(mutations => {
+    const changed = mutations.some(m =>
+      m.type === 'attributes' &&
+      m.attributeName === 'class'
+    );
+    if (changed && inView){
+      syncSelected();
+    }
+  });
+
+  cards.forEach(card =>
+    mo.observe(card, {attributes:true, attributeFilter:['class']})
+  );
+
+  /* Corrección suave de sincronía, únicamente mientras ambos están visibles. */
+  const syncTimer = setInterval(() => {
+    if (!inView) return;
+    const selected = getActive();
+    if (!selected || selected !== currentFront) return;
+    if (selected.paused || bg.paused) return;
+
+    const diff = Math.abs(
+      (selected.currentTime || 0) -
+      (bg.currentTime || 0)
+    );
+
+    if (diff > .22){
+      try { bg.currentTime = selected.currentTime; } catch(e) {}
+    }
+  }, 700);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden){
+      ++token;
+      fronts.forEach(v => { try { v.pause(); } catch(e) {} });
+      try { bg.pause(); } catch(e) {}
+    }else if(inView){
+      syncSelected();
+    }
+  });
+
+  window.addEventListener('pagehide', () => clearInterval(syncTimer), {once:true});
 })();
 </script>
 
