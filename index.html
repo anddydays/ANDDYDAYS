@@ -14728,5 +14728,134 @@ window.addEventListener('load',()=>{
 })();
 </script>
 
+
+<script id="andy-section-media-lifecycle-v10">
+(() => {
+  /* =========================================================
+     v10 — SECTION MEDIA LIFECYCLE
+     - Sección visible: prepara/reanuda solo sus fondos necesarios.
+     - Sección fuera: pausa videos y baja preload.
+     - En móvil es más agresivo para ahorrar memoria/datos/batería.
+     - No interfiere con el video activo de Editing & Motion;
+       ese lo controla el sincronizador móvil v9.
+  ========================================================= */
+
+  const isMobile =
+    window.matchMedia('(max-width:700px)').matches ||
+    window.matchMedia('(pointer:coarse)').matches;
+
+  const sections = [
+    document.getElementById('experiments'),
+    document.getElementById('archive'),
+    document.getElementById('design'),
+    document.getElementById('about')
+  ].filter(Boolean);
+
+  if (!sections.length || !('IntersectionObserver' in window)) return;
+
+  const experiments = document.getElementById('experiments');
+
+  function isManagedCarouselVideo(video){
+    return !!video.closest('#experiments .exp-card');
+  }
+
+  function isBackgroundVideo(video){
+    return (
+      video.classList.contains('visual-playground-video-bg') ||
+      video.classList.contains('about-bg-video') ||
+      !!video.closest('.photography-video-bg') ||
+      !!video.closest('.carousel-video-bg')
+    );
+  }
+
+  function deactivateSection(section){
+    const videos = [...section.querySelectorAll('video')];
+
+    videos.forEach(video => {
+      /* El carrusel de Editing & Motion ya tiene su propio
+         controlador móvil; solo lo pausamos si TODO experiments sale. */
+      try { video.pause(); } catch(e) {}
+
+      if (isMobile){
+        video.preload = 'none';
+
+        /* No borramos src para que volver atrás no obligue a una
+           descarga completa desde cero. Solo detenemos carga anticipada. */
+      }
+    });
+
+    section.dataset.mediaActive = '0';
+  }
+
+  function activateSection(section){
+    const videos = [...section.querySelectorAll('video')];
+
+    videos.forEach(video => {
+      /* Editing & Motion se deja en manos del sistema v9:
+         solo el seleccionado + su fondo. */
+      if (section === experiments && isManagedCarouselVideo(video)) {
+        return;
+      }
+
+      if (isMobile){
+        /* Solo los fondos de la sección visible reciben metadata/auto. */
+        if (isBackgroundVideo(video)){
+          video.preload = 'metadata';
+        }
+      }
+
+      /* Reanudar únicamente fondos/autoplay silenciosos.
+         No forzamos videos que el usuario debería iniciar manualmente. */
+      const shouldAutoResume =
+        video.autoplay ||
+        isBackgroundVideo(video);
+
+      if (shouldAutoResume){
+        video.muted = true;
+        video.playsInline = true;
+
+        try{
+          const p = video.play();
+          if (p && typeof p.catch === 'function') p.catch(()=>{});
+        }catch(e){}
+      }
+    });
+
+    section.dataset.mediaActive = '1';
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const section = entry.target;
+
+      /* 12% visible ya cuenta como sección activa.
+         rootMargin anticipa un poco la preparación al acercarse. */
+      if (entry.isIntersecting && entry.intersectionRatio > .04){
+        activateSection(section);
+      }else{
+        deactivateSection(section);
+      }
+    });
+  }, {
+    rootMargin: isMobile ? '100px 0px 100px 0px' : '220px 0px 220px 0px',
+    threshold:[0,.04,.12,.4]
+  });
+
+  sections.forEach(section => observer.observe(section));
+
+  /* Al ocultar la pestaña, todo se pausa inmediatamente. */
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden){
+      sections.forEach(deactivateSection);
+    }
+  });
+
+  /* Seguridad al abandonar la página. */
+  window.addEventListener('pagehide', () => {
+    sections.forEach(deactivateSection);
+  });
+})();
+</script>
+
 </body>
 </html>
