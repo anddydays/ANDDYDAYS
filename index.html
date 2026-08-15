@@ -10759,6 +10759,193 @@ body.vp-lightbox-open{
 }
 </style>
 
+
+<style id="andy-iphone16-about-fix-v5">
+/* =========================================================
+   v5 — FIX ABOUT / iPHONE 16
+   Solo corrige overflow y composición móvil.
+   Desktop / MacBook permanece intacto.
+========================================================= */
+
+@media (max-width: 760px){
+
+  html,
+  body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden !important;
+  }
+
+  /* ABOUT ocupa el ancho real disponible del teléfono. */
+  #about{
+    width:100% !important;
+    max-width:100% !important;
+    overflow:hidden !important;
+  }
+
+  #about .about-grid{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    width:100% !important;
+    max-width:100% !important;
+    padding-left:18px !important;
+    padding-right:18px !important;
+    margin:0 !important;
+    gap:20px !important;
+    min-width:0 !important;
+  }
+
+  #about .about-grid > *{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+  }
+
+  /* ANDY sigue enorme, pero ya no rebasa el viewport. */
+  #about h2{
+    width:100% !important;
+    max-width:100% !important;
+    font-size:clamp(82px,26vw,112px) !important;
+    line-height:.72 !important;
+    letter-spacing:-.07em !important;
+    white-space:nowrap !important;
+    overflow:visible !important;
+  }
+
+  #about .andy-full-name{
+    max-width:100% !important;
+    font-size:clamp(20px,6vw,27px) !important;
+    letter-spacing:.12em !important;
+  }
+
+  #about .andy-age{
+    max-width:100% !important;
+  }
+
+  /* Tarjeta completamente contenida en pantalla. */
+  #about .about-card{
+    box-sizing:border-box !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:18px 16px !important;
+    overflow:hidden !important;
+    border-radius:22px !important;
+  }
+
+  #about .about-card > p{
+    width:100% !important;
+    max-width:100% !important;
+    overflow-wrap:anywhere !important;
+    word-break:normal !important;
+    font-size:.82rem !important;
+    line-height:1.55 !important;
+  }
+
+  /* En iPhone los datos se apilan.
+     Así Edad/Universidad ya no quedan cortados fuera de pantalla. */
+  #about .about-details{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    width:100% !important;
+    max-width:100% !important;
+    gap:0 !important;
+    min-width:0 !important;
+  }
+
+  #about .about-details > div{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    padding:12px 0 !important;
+  }
+
+  #about .about-details span,
+  #about .about-details strong{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    overflow-wrap:anywhere !important;
+  }
+
+  /* Personal Archive conserva el swipe horizontal,
+     pero el carrusel ya no ensancha toda la página. */
+  #about .about-inline-archive{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+  }
+
+  #about .about-inline-archive-head{
+    width:100% !important;
+    max-width:100% !important;
+  }
+
+  #about .about-inline-scroll{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+    scrollbar-width:none;
+  }
+
+  #about .about-inline-scroll::-webkit-scrollbar{
+    display:none;
+  }
+
+  #about .about-inline-track{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    width:max-content !important;
+    min-width:max-content !important;
+    max-width:none !important;
+    gap:10px !important;
+  }
+
+  #about .about-inline-photo,
+  #about .about-inline-photo:nth-child(3){
+    flex:0 0 auto !important;
+    width:112px !important;
+    height:148px !important;
+    max-width:none !important;
+  }
+
+  /* Evita que elementos decorativos generen ancho invisible. */
+  #about .about-glow{
+    max-width:100vw !important;
+    overflow:hidden !important;
+  }
+}
+
+/* iPhone especialmente angosto / navegador de Instagram */
+@media (max-width:430px){
+  #about .about-grid{
+    padding-left:14px !important;
+    padding-right:14px !important;
+  }
+
+  #about h2{
+    font-size:clamp(76px,25vw,104px) !important;
+  }
+
+  #about .about-card{
+    padding:16px 14px !important;
+  }
+
+  #about .about-inline-photo,
+  #about .about-inline-photo:nth-child(3){
+    width:106px !important;
+    height:142px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
