@@ -5106,8 +5106,8 @@ html.andy-loading body{
   opacity:1;
   visibility:visible;
   transition:
-    opacity .78s cubic-bezier(.16,1,.3,1),
-    visibility .78s linear !important;
+    opacity 1.5s cubic-bezier(.16,1,.3,1),
+    visibility 1.5s linear !important;
 }
 
 .andy-video-preloader.done{
@@ -10727,6 +10727,10 @@ portafolio-web/
   <img loading="lazy" fetchpriority="low" decoding="async"  src="fotos/venados....jpg" alt="Venados / Portrait">
   <figcaption>Venados / Portrait</figcaption>
 </figure>
+<figure class="series-card reveal">
+  <img loading="lazy" fetchpriority="low" decoding="async" src="fotos/espalda.jpg" alt="Venados / Back">
+  <figcaption>VENADOS / BACK</figcaption>
+</figure>
     </div>
   </section>
 
@@ -11622,7 +11626,7 @@ window.addEventListener('load',()=>{
       setTimeout(() => {
         try { video?.pause(); } catch(e) {}
         loader.remove();
-      }, 1250);
+      }, 1900);
 
       /* Frase visible bastante más tiempo para poder leer ambos idiomas. */
       setTimeout(() => {
