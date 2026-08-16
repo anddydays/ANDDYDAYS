@@ -11115,6 +11115,65 @@ body.vp-lightbox-open{
 }
 </style>
 
+
+<style id="andy-camera-cat-compact-final-fix">
+/* =========================================================
+   FINAL FIX — Camera Cat must never protrude from compact island
+   Desktop + tablet only. Mobile keeps its own responsive nav.
+========================================================= */
+@media (min-width:701px){
+
+  .nav.island-compact .camera-experience-link{
+    display:none !important;
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+    width:0 !important;
+    min-width:0 !important;
+    max-width:0 !important;
+    height:0 !important;
+    padding:0 !important;
+    margin:0 !important;
+    border:0 !important;
+    gap:0 !important;
+    overflow:hidden !important;
+  }
+
+  .nav.island-compact .camera-experience-label,
+  .nav.island-compact .camera-experience-dot{
+    display:none !important;
+  }
+
+  .nav.island-expanded .camera-experience-link{
+    display:inline-flex !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+    width:auto !important;
+    min-width:max-content !important;
+    max-width:none !important;
+    height:auto !important;
+    padding:10px 15px !important;
+    margin:0 !important;
+    border:1px solid rgba(255,255,255,.19) !important;
+    gap:9px !important;
+    overflow:visible !important;
+  }
+
+  .nav.island-expanded .camera-experience-label,
+  .nav.island-expanded .camera-experience-dot{
+    display:inline-block !important;
+  }
+}
+
+@media (min-width:701px) and (max-width:1120px){
+  .nav.island-expanded .camera-experience-link{
+    padding:9px 12px !important;
+    gap:7px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
