@@ -11067,12 +11067,12 @@ body.vp-lightbox-open{
 </style>
 
 
-<style id="andy-vp-lightbox-real-fix-v73-css">
-#design .design-showcase-card[data-pos="0"]{
-  cursor:zoom-in !important;
-}
+<style id="andy-vp-lightbox-click-final-css">
+#design .design-showcase-card[data-pos="0"],
 #design .design-showcase-card[data-pos="0"] img{
   cursor:zoom-in !important;
+}
+#design .design-showcase-card img{
   -webkit-user-drag:none !important;
   user-select:none !important;
   -webkit-user-select:none !important;
@@ -11111,65 +11111,6 @@ body.vp-lightbox-open{
     opacity:.72;
     bottom:10px;
     font-size:7px;
-  }
-}
-</style>
-
-
-<style id="andy-camera-cat-compact-final-fix">
-/* =========================================================
-   FINAL FIX — Camera Cat must never protrude from compact island
-   Desktop + tablet only. Mobile keeps its own responsive nav.
-========================================================= */
-@media (min-width:701px){
-
-  .nav.island-compact .camera-experience-link{
-    display:none !important;
-    opacity:0 !important;
-    visibility:hidden !important;
-    pointer-events:none !important;
-    width:0 !important;
-    min-width:0 !important;
-    max-width:0 !important;
-    height:0 !important;
-    padding:0 !important;
-    margin:0 !important;
-    border:0 !important;
-    gap:0 !important;
-    overflow:hidden !important;
-  }
-
-  .nav.island-compact .camera-experience-label,
-  .nav.island-compact .camera-experience-dot{
-    display:none !important;
-  }
-
-  .nav.island-expanded .camera-experience-link{
-    display:inline-flex !important;
-    opacity:1 !important;
-    visibility:visible !important;
-    pointer-events:auto !important;
-    width:auto !important;
-    min-width:max-content !important;
-    max-width:none !important;
-    height:auto !important;
-    padding:10px 15px !important;
-    margin:0 !important;
-    border:1px solid rgba(255,255,255,.19) !important;
-    gap:9px !important;
-    overflow:visible !important;
-  }
-
-  .nav.island-expanded .camera-experience-label,
-  .nav.island-expanded .camera-experience-dot{
-    display:inline-block !important;
-  }
-}
-
-@media (min-width:701px) and (max-width:1120px){
-  .nav.island-expanded .camera-experience-link{
-    padding:9px 12px !important;
-    gap:7px !important;
   }
 }
 </style>
@@ -14972,6 +14913,79 @@ window.addEventListener('load',()=>{
   display:inline !important;
 }
 
+
+/* =========================================================
+   FIX — CAMERA CAT NO SOBRESALE DE LA DYNAMIC ISLAND
+   Desktop + tablet: when nav is compact, Camera Cat collapses
+   completely with the rest of the navigation.
+========================================================= */
+@media (min-width:701px){
+  .nav.island-compact .camera-experience-link{
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+
+    width:0 !important;
+    min-width:0 !important;
+    max-width:0 !important;
+    height:0 !important;
+
+    padding:0 !important;
+    margin:0 !important;
+    gap:0 !important;
+
+    border-width:0 !important;
+    overflow:hidden !important;
+
+    transform:scale(.75) !important;
+
+    transition:
+      opacity .18s ease,
+      visibility .18s ease,
+      width .32s cubic-bezier(.16,1,.3,1),
+      max-width .32s cubic-bezier(.16,1,.3,1),
+      padding .32s cubic-bezier(.16,1,.3,1),
+      margin .32s cubic-bezier(.16,1,.3,1),
+      transform .24s ease !important;
+  }
+
+  .nav.island-compact .camera-experience-link *{
+    opacity:0 !important;
+  }
+
+  /* Restore Camera Cat normally as soon as the island opens. */
+  .nav.island-expanded .camera-experience-link{
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+
+    width:auto !important;
+    min-width:max-content !important;
+    max-width:none !important;
+    height:auto !important;
+
+    padding:10px 15px !important;
+    margin:0 !important;
+    gap:9px !important;
+
+    border-width:1px !important;
+    overflow:visible !important;
+    transform:none !important;
+  }
+
+  .nav.island-expanded .camera-experience-link *{
+    opacity:1 !important;
+  }
+}
+
+/* Tablet sizing after restoring the button. */
+@media (min-width:701px) and (max-width:1120px){
+  .nav.island-expanded .camera-experience-link{
+    padding:9px 12px !important;
+    gap:7px !important;
+  }
+}
+
 </style>
 
 <script id="andy-iphone16-section-and-video-v80">
@@ -15397,7 +15411,7 @@ window.addEventListener('load',()=>{
 </script>
 
 
-<script id="andy-vp-lightbox-real-fix-v73">
+<script id="andy-vp-lightbox-click-final-js">
 (() => {
   const section = document.getElementById('design');
   const box = document.getElementById('vpLightbox');
@@ -15423,11 +15437,8 @@ window.addEventListener('load',()=>{
     image.src = source.currentSrc || source.src;
     image.alt = source.alt || card.dataset.title || 'Ilustración';
 
-    if (title) {
-      title.textContent = card.dataset.title || source.alt || '';
-    }
-
-    if (counter) {
+    if (title) title.textContent = card.dataset.title || source.alt || '';
+    if (counter){
       counter.textContent =
         String(index + 1).padStart(2,'0') +
         ' / ' +
@@ -15439,10 +15450,6 @@ window.addEventListener('load',()=>{
     document.body.classList.add('vp-lightbox-open');
   }
 
-  /* IMPORTANT:
-     The carousel calls setPointerCapture(), so pointerup may target
-     the viewport instead of the card. We therefore remember the card
-     from pointerdown and only measure movement. */
   section.addEventListener('pointerdown', e => {
     const card = e.target.closest('.design-showcase-card');
     if (!card) return;
@@ -15464,14 +15471,12 @@ window.addEventListener('load',()=>{
     const distance = Math.hypot(dx,dy);
     const elapsed = performance.now() - startTime;
 
-    /* Real swipe/drag stays under control of the carousel. */
+    // Drag/swipe remains a carousel action.
     if (distance > 14 || elapsed > 750) return;
 
-    /* Side cards still select normally.
-       Only the CENTER card opens large. */
+    // Side cards keep selecting themselves; center card opens large.
     if (card.dataset.pos !== '0') return;
 
-    /* Let the carousel finish its pointer cleanup first. */
     setTimeout(() => openCard(card), 0);
   }, true);
 
@@ -15479,19 +15484,13 @@ window.addEventListener('load',()=>{
     pressedCard = null;
   }, true);
 
-  /* Fallback for browsers / trackpads that produce click without
-     a useful pointerup sequence. */
+  // Extra click fallback for trackpads/mice.
   document.addEventListener('click', e => {
     const card = e.target.closest?.('#design .design-showcase-card[data-pos="0"]');
-    if (!card) return;
-
-    /* If it is already open, do nothing. */
-    if (box.classList.contains('is-open')) return;
-
+    if (!card || box.classList.contains('is-open')) return;
     setTimeout(() => openCard(card), 0);
   }, true);
 
-  /* Make the currently selected drawing obviously clickable. */
   cards.forEach(card => {
     card.querySelector('img')?.setAttribute('draggable','false');
   });
