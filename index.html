@@ -114,10 +114,7 @@ button{font:inherit;color:inherit}
   .nav-links{gap:18px}
   .camera-experience-link{padding:9px 12px}
   .camera-experience-label{font-size:0}
-  .camera-experience-label::after{
-    content:"Camera Cat";
-    font-size:.66rem;
-  }
+  /* duplicate Camera Cat pseudo-label removed */
 }
 
 /* En móvil la experiencia sigue accesible aunque el resto de enlaces se oculte */
@@ -11158,11 +11155,36 @@ portafolio-web/
   <a class="brand" href="#home">ANDY / ANDDY.DAYS</a>
   <div class="nav-links">
     
-    <a href="#experiments">Videos</a>
-          <a href="#archive">Archive</a>
-    <a href="#design">Visual Playground</a>
-    <a href="#about">About</a>
-    <a href="#contact">Contact</a>
+    <a href="#experiments" class="mobile-icon-link" aria-label="Videos">
+      <span class="nav-text">Videos</span>
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </span>
+    </a>
+          <a href="#archive" class="mobile-icon-link" aria-label="Archive">
+      <span class="nav-text">Archive</span>
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v4H4zM5 10h14v10H5zM9 13h6"/></svg>
+      </span>
+    </a>
+    <a href="#design" class="mobile-icon-link" aria-label="Visual Playground">
+      <span class="nav-text">Visual Playground</span>
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3l2.1 5.2L19 10l-4.9 1.8L12 17l-2.1-5.2L5 10l4.9-1.8z"/></svg>
+      </span>
+    </a>
+    <a href="#about" class="mobile-icon-link" aria-label="About">
+      <span class="nav-text">About</span>
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5.5 20c.8-4 3-6 6.5-6s5.7 2 6.5 6"/></svg>
+      </span>
+    </a>
+    <a href="#contact" class="mobile-icon-link" aria-label="Contact">
+      <span class="nav-text">Contact</span>
+      <span class="nav-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M4 7l8 6 8-6"/></svg>
+      </span>
+    </a>
   </div>
 
   <a class="camera-experience-link"
@@ -14504,6 +14526,344 @@ window.addEventListener('load',()=>{
     margin-top:26px !important;
   }
 }
+
+/* =========================================================
+   CAMERA CAT — RESPONSIVE NAV FIX
+   Keeps Camera Cat visible on iPad / iPhone.
+========================================================= */
+
+.camera-experience-link{
+  flex:0 0 auto !important;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  white-space:nowrap;
+  min-width:max-content;
+}
+
+/* Tablet / iPad */
+@media(max-width:1100px){
+  .nav{
+    left:2.5%;
+    right:2.5%;
+    padding:0 13px;
+    gap:10px;
+  }
+
+  .brand{
+    flex:0 1 auto;
+    min-width:0;
+    white-space:nowrap;
+  }
+
+  .nav-links{
+    gap:15px !important;
+    flex:1 1 auto;
+    justify-content:center;
+    min-width:0;
+  }
+
+  .nav-links a{
+    font-size:.65rem !important;
+    white-space:nowrap;
+  }
+
+  .camera-experience-link{
+    margin-left:auto;
+    padding:9px 12px !important;
+    font-size:.62rem !important;
+    letter-spacing:.09em !important;
+  }
+
+  .camera-experience-label{
+    font-size:.62rem !important;
+  }
+
+  .nav-index{
+    display:none !important;
+  }
+}
+
+/* iPad portrait / phones */
+@media(max-width:900px){
+  .nav{
+    height:56px !important;
+    left:3% !important;
+    right:3% !important;
+    top:12px !important;
+    padding:0 10px 0 14px !important;
+    justify-content:flex-start !important;
+    gap:8px !important;
+  }
+
+  .brand{
+    font-size:.68rem !important;
+    letter-spacing:.12em !important;
+    max-width:42%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* Existing portfolio links are hidden on mobile;
+     Camera Cat remains intentionally visible. */
+  .nav-links{
+    display:none !important;
+  }
+
+  .camera-experience-link{
+    display:inline-flex !important;
+    margin-left:auto !important;
+    margin-right:0 !important;
+    height:36px;
+    padding:0 12px !important;
+    border-radius:999px;
+    background:rgba(8,8,8,.48) !important;
+    border:1px solid rgba(255,255,255,.28) !important;
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    color:#fff !important;
+    opacity:1 !important;
+    transform:none !important;
+  }
+
+  .camera-experience-label{
+    display:inline !important;
+    font-size:.62rem !important;
+    line-height:1 !important;
+    letter-spacing:.10em !important;
+    text-transform:uppercase;
+  }
+
+  .camera-experience-dot{
+    display:inline-block !important;
+    width:6px !important;
+    height:6px !important;
+    flex:0 0 6px !important;
+  }
+
+  .nav-index{
+    display:none !important;
+  }
+}
+
+/* iPhone */
+@media(max-width:520px){
+  .nav{
+    left:4% !important;
+    right:4% !important;
+    height:54px !important;
+    padding:0 8px 0 12px !important;
+  }
+
+  .brand{
+    max-width:48%;
+    font-size:.59rem !important;
+    letter-spacing:.105em !important;
+  }
+
+  .camera-experience-link{
+    height:34px !important;
+    padding:0 10px !important;
+    gap:6px !important;
+  }
+
+  .camera-experience-label{
+    font-size:.56rem !important;
+    letter-spacing:.085em !important;
+  }
+
+  .camera-experience-dot{
+    width:5px !important;
+    height:5px !important;
+    flex-basis:5px !important;
+  }
+}
+
+/* Very narrow phones: keep the destination identifiable. */
+@media(max-width:370px){
+  .brand{
+    max-width:43%;
+    font-size:.54rem !important;
+  }
+
+  .camera-experience-link{
+    padding:0 8px !important;
+  }
+
+  .camera-experience-label{
+    font-size:.51rem !important;
+    letter-spacing:.06em !important;
+  }
+}
+
+
+/* =========================================================
+   MOBILE NAV ICONS
+========================================================= */
+.nav-icon{
+  display:none;
+}
+.nav-icon svg{
+  width:17px;
+  height:17px;
+  display:block;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.nav-icon svg path:first-child:last-child{
+  fill:currentColor;
+  stroke:none;
+}
+
+/* Keep text navigation on desktop/tablet landscape */
+@media(min-width:901px){
+  .nav-text{display:inline}
+  .nav-icon{display:none}
+}
+
+/* Phone / iPad portrait: convert section links to icons */
+@media(max-width:900px){
+  .nav{
+    display:flex !important;
+    align-items:center !important;
+  }
+
+  .brand{
+    max-width:36% !important;
+  }
+
+  .nav-links{
+    display:flex !important;
+    flex:0 0 auto !important;
+    gap:3px !important;
+    margin-left:auto !important;
+    margin-right:5px !important;
+    align-items:center !important;
+  }
+
+  .nav-links a.mobile-icon-link{
+    width:31px !important;
+    height:31px !important;
+    min-width:31px !important;
+    padding:0 !important;
+    margin:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    border-radius:50% !important;
+    background:rgba(8,8,8,.30) !important;
+    border:1px solid rgba(255,255,255,.14) !important;
+    color:#fff !important;
+    opacity:.86 !important;
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    transition:background .2s ease,opacity .2s ease,transform .2s ease;
+  }
+
+  .nav-links a.mobile-icon-link:hover,
+  .nav-links a.mobile-icon-link:active{
+    opacity:1 !important;
+    background:rgba(255,255,255,.11) !important;
+    transform:scale(1.04);
+  }
+
+  .nav-links .nav-text{
+    display:none !important;
+  }
+
+  .nav-links .nav-icon{
+    display:block !important;
+  }
+
+  .camera-experience-link{
+    flex:0 0 auto !important;
+    margin-left:0 !important;
+  }
+}
+
+/* iPhone: slightly tighter */
+@media(max-width:600px){
+  .nav{
+    padding-left:10px !important;
+    padding-right:7px !important;
+    gap:5px !important;
+  }
+
+  .brand{
+    max-width:31% !important;
+    font-size:.55rem !important;
+  }
+
+  .nav-links{
+    gap:2px !important;
+    margin-right:3px !important;
+  }
+
+  .nav-links a.mobile-icon-link{
+    width:28px !important;
+    height:28px !important;
+    min-width:28px !important;
+  }
+
+  .nav-icon svg{
+    width:15px;
+    height:15px;
+  }
+
+  .camera-experience-link{
+    height:31px !important;
+    padding:0 8px !important;
+  }
+
+  .camera-experience-label{
+    font-size:.50rem !important;
+    letter-spacing:.065em !important;
+  }
+}
+
+/* Very narrow phones: keep all five icons + Camera Cat visible */
+@media(max-width:390px){
+  .brand{
+    max-width:25% !important;
+    font-size:.50rem !important;
+  }
+
+  .nav-links a.mobile-icon-link{
+    width:25px !important;
+    height:25px !important;
+    min-width:25px !important;
+  }
+
+  .nav-icon svg{
+    width:13px;
+    height:13px;
+  }
+
+  .camera-experience-link{
+    padding:0 6px !important;
+    gap:4px !important;
+  }
+
+  .camera-experience-label{
+    font-size:.46rem !important;
+  }
+}
+
+
+/* CAMERA CAT — single mobile label */
+.camera-experience-link::after,
+.camera-experience-label::after{
+  content:none !important;
+  display:none !important;
+}
+.camera-experience-label{
+  display:inline !important;
+}
+
 </style>
 
 <script id="andy-iphone16-section-and-video-v80">
