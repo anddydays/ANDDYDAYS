@@ -11066,6 +11066,55 @@ body.vp-lightbox-open{
 }
 </style>
 
+
+<style id="andy-vp-lightbox-real-fix-v73-css">
+#design .design-showcase-card[data-pos="0"]{
+  cursor:zoom-in !important;
+}
+#design .design-showcase-card[data-pos="0"] img{
+  cursor:zoom-in !important;
+  -webkit-user-drag:none !important;
+  user-select:none !important;
+  -webkit-user-select:none !important;
+}
+#design .design-showcase-card[data-pos="0"]::after{
+  content:"CLICK TO EXPAND";
+  position:absolute;
+  left:50%;
+  bottom:14px;
+  z-index:25;
+  transform:translateX(-50%) translateY(4px);
+  padding:7px 11px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  background:rgba(5,5,5,.48);
+  color:rgba(255,255,255,.84);
+  font-size:8px;
+  line-height:1;
+  letter-spacing:.14em;
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  transition:opacity .22s ease,transform .22s ease;
+}
+@media(hover:hover){
+  #design .design-showcase-card[data-pos="0"]:hover::after{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+}
+@media(max-width:700px){
+  #design .design-showcase-card[data-pos="0"]::after{
+    content:"TAP TO EXPAND";
+    opacity:.72;
+    bottom:10px;
+    font-size:7px;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -14864,56 +14913,6 @@ window.addEventListener('load',()=>{
   display:inline !important;
 }
 
-
-/* =========================================================
-   VISUAL PLAYGROUND — CLICK / SWIPE COEXISTENCE FIX
-========================================================= */
-#design .design-showcase-card,
-#design .design-showcase-card img{
-  cursor:zoom-in !important;
-}
-#design .design-showcase-card img{
-  -webkit-user-drag:none !important;
-  user-select:none !important;
-  -webkit-user-select:none !important;
-}
-#design .design-showcase-card[data-pos="0"]::after{
-  content:"CLICK TO EXPAND";
-  position:absolute;
-  left:50%;
-  bottom:14px;
-  z-index:12;
-  transform:translateX(-50%) translateY(5px);
-  padding:7px 11px;
-  border:1px solid rgba(255,255,255,.18);
-  border-radius:999px;
-  background:rgba(5,5,5,.46);
-  color:rgba(255,255,255,.82);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-  font-size:8px;
-  letter-spacing:.14em;
-  white-space:nowrap;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .25s ease,transform .25s ease;
-}
-@media(hover:hover){
-  #design .design-showcase-card[data-pos="0"]:hover::after{
-    opacity:1;
-    transform:translateX(-50%) translateY(0);
-  }
-}
-@media(max-width:700px){
-  #design .design-showcase-card[data-pos="0"]::after{
-    content:"TAP TO EXPAND";
-    opacity:.72;
-    bottom:10px;
-    font-size:7px;
-    padding:6px 9px;
-  }
-}
-
 </style>
 
 <script id="andy-iphone16-section-and-video-v80">
@@ -15339,7 +15338,7 @@ window.addEventListener('load',()=>{
 </script>
 
 
-<script id="andy-vp-tap-lightbox-fix-v72">
+<script id="andy-vp-lightbox-real-fix-v73">
 (() => {
   const section = document.getElementById('design');
   const box = document.getElementById('vpLightbox');
@@ -15347,28 +15346,29 @@ window.addEventListener('load',()=>{
   const title = document.getElementById('vpLightboxTitle');
   const counter = document.getElementById('vpLightboxCounter');
 
-  if(!section || !box || !image) return;
+  if (!section || !box || !image) return;
 
   const cards = [...section.querySelectorAll('.design-showcase-card')];
-  if(!cards.length) return;
+  if (!cards.length) return;
 
-  let downCard = null;
-  let downX = 0;
-  let downY = 0;
-  let downTime = 0;
+  let pressedCard = null;
+  let startX = 0;
+  let startY = 0;
+  let startTime = 0;
 
   function openCard(card){
     const index = cards.indexOf(card);
     const source = card.querySelector('img');
-    if(index < 0 || !source) return;
+    if (index < 0 || !source) return;
 
     image.src = source.currentSrc || source.src;
     image.alt = source.alt || card.dataset.title || 'Ilustración';
 
-    if(title){
+    if (title) {
       title.textContent = card.dataset.title || source.alt || '';
     }
-    if(counter){
+
+    if (counter) {
       counter.textContent =
         String(index + 1).padStart(2,'0') +
         ' / ' +
@@ -15380,55 +15380,62 @@ window.addEventListener('load',()=>{
     document.body.classList.add('vp-lightbox-open');
   }
 
-  /* A short pointer gesture is a tap/click.
-     A horizontal movement remains a carousel swipe. */
-  document.addEventListener('pointerdown', e => {
-    const card = e.target.closest?.('#design .design-showcase-card');
-    if(!card) return;
+  /* IMPORTANT:
+     The carousel calls setPointerCapture(), so pointerup may target
+     the viewport instead of the card. We therefore remember the card
+     from pointerdown and only measure movement. */
+  section.addEventListener('pointerdown', e => {
+    const card = e.target.closest('.design-showcase-card');
+    if (!card) return;
 
-    downCard = card;
-    downX = e.clientX;
-    downY = e.clientY;
-    downTime = performance.now();
+    pressedCard = card;
+    startX = e.clientX;
+    startY = e.clientY;
+    startTime = performance.now();
   }, true);
 
-  document.addEventListener('pointerup', e => {
-    if(!downCard) return;
+  window.addEventListener('pointerup', e => {
+    if (!pressedCard) return;
 
-    const card = e.target.closest?.('#design .design-showcase-card');
-    const dx = e.clientX - downX;
-    const dy = e.clientY - downY;
+    const card = pressedCard;
+    pressedCard = null;
+
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
     const distance = Math.hypot(dx,dy);
-    const elapsed = performance.now() - downTime;
-    const sameCard = card === downCard;
+    const elapsed = performance.now() - startTime;
 
-    const tappedCard = downCard;
-    downCard = null;
+    /* Real swipe/drag stays under control of the carousel. */
+    if (distance > 14 || elapsed > 750) return;
 
-    /* 12px tolerates normal finger/mouse movement but does not
-       interfere with the carousel's actual swipe threshold. */
-    if(!sameCard || distance > 12 || elapsed > 650) return;
+    /* Side cards still select normally.
+       Only the CENTER card opens large. */
+    if (card.dataset.pos !== '0') return;
 
-    /* Only the selected/center card opens.
-       Clicking a side card keeps its original job: select it. */
-    if(tappedCard.dataset.pos !== '0') return;
-
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation();
-
-    openCard(tappedCard);
+    /* Let the carousel finish its pointer cleanup first. */
+    setTimeout(() => openCard(card), 0);
   }, true);
 
-  /* Keyboard accessibility for the active drawing. */
-  document.addEventListener('keydown', e => {
-    if(e.key !== 'Enter' && e.key !== ' ') return;
-    const focused = document.activeElement?.closest?.('#design .design-showcase-card');
-    if(!focused || focused.dataset.pos !== '0') return;
-
-    e.preventDefault();
-    openCard(focused);
+  window.addEventListener('pointercancel', () => {
+    pressedCard = null;
   }, true);
+
+  /* Fallback for browsers / trackpads that produce click without
+     a useful pointerup sequence. */
+  document.addEventListener('click', e => {
+    const card = e.target.closest?.('#design .design-showcase-card[data-pos="0"]');
+    if (!card) return;
+
+    /* If it is already open, do nothing. */
+    if (box.classList.contains('is-open')) return;
+
+    setTimeout(() => openCard(card), 0);
+  }, true);
+
+  /* Make the currently selected drawing obviously clickable. */
+  cards.forEach(card => {
+    card.querySelector('img')?.setAttribute('draggable','false');
+  });
 })();
 </script>
 
