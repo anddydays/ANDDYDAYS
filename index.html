@@ -11115,6 +11115,48 @@ body.vp-lightbox-open{
 }
 </style>
 
+
+<style id="andy-vp-lightbox-swipe-css">
+/* =========================================================
+   VISUAL PLAYGROUND LIGHTBOX — DRAG / SWIPE
+========================================================= */
+#vpLightbox .vp-lightbox-content{
+  touch-action:pan-y;
+}
+
+#vpLightboxImage{
+  cursor:grab;
+  user-select:none !important;
+  -webkit-user-select:none !important;
+  -webkit-user-drag:none !important;
+  will-change:transform,opacity;
+  transition:
+    transform .32s cubic-bezier(.16,1,.3,1),
+    opacity .25s ease !important;
+}
+
+#vpLightbox.is-dragging #vpLightboxImage{
+  cursor:grabbing;
+  transition:none !important;
+}
+
+#vpLightboxImage.vp-swipe-out-left{
+  transform:translateX(-16%) scale(.985) !important;
+  opacity:0 !important;
+}
+
+#vpLightboxImage.vp-swipe-out-right{
+  transform:translateX(16%) scale(.985) !important;
+  opacity:0 !important;
+}
+
+@media(max-width:700px){
+  #vpLightbox .vp-lightbox-content{
+    touch-action:none;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -15494,6 +15536,136 @@ window.addEventListener('load',()=>{
   cards.forEach(card => {
     card.querySelector('img')?.setAttribute('draggable','false');
   });
+})();
+</script>
+
+
+<script id="andy-vp-lightbox-swipe-js">
+(() => {
+  const box = document.getElementById('vpLightbox');
+  const image = document.getElementById('vpLightboxImage');
+  const prev = document.getElementById('vpLightboxPrev');
+  const next = document.getElementById('vpLightboxNext');
+
+  if(!box || !image || !prev || !next) return;
+
+  let dragging = false;
+  let pointerId = null;
+  let startX = 0;
+  let startY = 0;
+  let currentX = 0;
+  let horizontal = false;
+
+  function resetImage(){
+    image.style.transform = '';
+    image.style.opacity = '';
+    box.classList.remove('is-dragging');
+  }
+
+  function triggerDirection(dir){
+    const cls = dir > 0 ? 'vp-swipe-out-left' : 'vp-swipe-out-right';
+
+    image.classList.add(cls);
+
+    setTimeout(() => {
+      if(dir > 0) next.click();
+      else prev.click();
+
+      image.classList.remove(cls);
+
+      // start next frame slightly from opposite side
+      image.style.transition = 'none';
+      image.style.transform = dir > 0
+        ? 'translateX(9%) scale(.99)'
+        : 'translateX(-9%) scale(.99)';
+      image.style.opacity = '.35';
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          image.style.transition = '';
+          image.style.transform = '';
+          image.style.opacity = '';
+        });
+      });
+    }, 190);
+  }
+
+  image.addEventListener('pointerdown', e => {
+    if(!box.classList.contains('is-open')) return;
+    if(e.button !== undefined && e.button !== 0) return;
+
+    dragging = true;
+    pointerId = e.pointerId;
+    startX = currentX = e.clientX;
+    startY = e.clientY;
+    horizontal = false;
+
+    box.classList.add('is-dragging');
+
+    try{
+      image.setPointerCapture(pointerId);
+    }catch(err){}
+  });
+
+  image.addEventListener('pointermove', e => {
+    if(!dragging || e.pointerId !== pointerId) return;
+
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    currentX = e.clientX;
+
+    if(!horizontal && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 1.08){
+      horizontal = true;
+    }
+
+    if(!horizontal) return;
+
+    e.preventDefault();
+
+    const limit = Math.min(window.innerWidth * .22, 230);
+    const clamped = Math.max(-limit, Math.min(limit, dx));
+    const opacity = Math.max(.45, 1 - Math.abs(clamped) / (limit * 1.7));
+
+    image.style.transform = `translateX(${clamped}px) scale(.995)`;
+    image.style.opacity = opacity;
+  }, {passive:false});
+
+  function finish(e){
+    if(!dragging) return;
+    if(e.pointerId !== undefined && pointerId !== null && e.pointerId !== pointerId) return;
+
+    const endX = e.clientX ?? currentX;
+    const dx = endX - startX;
+    const threshold = Math.min(90, window.innerWidth * .13);
+
+    dragging = false;
+    pointerId = null;
+
+    try{
+      image.releasePointerCapture(e.pointerId);
+    }catch(err){}
+
+    if(horizontal && Math.abs(dx) >= threshold){
+      resetImage();
+      triggerDirection(dx < 0 ? 1 : -1);
+    }else{
+      resetImage();
+    }
+
+    horizontal = false;
+  }
+
+  image.addEventListener('pointerup', finish);
+  image.addEventListener('pointercancel', finish);
+  image.addEventListener('lostpointercapture', () => {
+    if(!dragging) return;
+    dragging = false;
+    pointerId = null;
+    horizontal = false;
+    resetImage();
+  });
+
+  image.setAttribute('draggable','false');
 })();
 </script>
 
