@@ -15669,5 +15669,81 @@ window.addEventListener('load',()=>{
 })();
 </script>
 
+
+<script id="andy-vp-lightbox-trackpad-js">
+(() => {
+  const box = document.getElementById('vpLightbox');
+  const prev = document.getElementById('vpLightboxPrev');
+  const next = document.getElementById('vpLightboxNext');
+  const image = document.getElementById('vpLightboxImage');
+
+  if(!box || !prev || !next || !image) return;
+
+  let accumX = 0;
+  let locked = false;
+  let resetTimer = null;
+
+  box.addEventListener('wheel', e => {
+    if(!box.classList.contains('is-open')) return;
+
+    const dx = e.deltaX;
+    const dy = e.deltaY;
+
+    // Ignore normal vertical scrolling / pinch-like noise.
+    if(Math.abs(dx) < 6) return;
+    if(Math.abs(dx) <= Math.abs(dy) * 1.08) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    if(locked) return;
+
+    accumX += dx;
+
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(() => {
+      accumX = 0;
+    }, 110);
+
+    // Trackpads emit many tiny wheel events; accumulate them.
+    if(Math.abs(accumX) >= 42){
+      locked = true;
+
+      const goNext = accumX > 0;
+      accumX = 0;
+
+      image.style.transition = 'transform .18s ease, opacity .18s ease';
+      image.style.transform = goNext
+        ? 'translateX(-7%) scale(.99)'
+        : 'translateX(7%) scale(.99)';
+      image.style.opacity = '.25';
+
+      setTimeout(() => {
+        if(goNext) next.click();
+        else prev.click();
+
+        image.style.transition = 'none';
+        image.style.transform = goNext
+          ? 'translateX(7%) scale(.99)'
+          : 'translateX(-7%) scale(.99)';
+        image.style.opacity = '.25';
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            image.style.transition = '';
+            image.style.transform = '';
+            image.style.opacity = '';
+          });
+        });
+      }, 150);
+
+      setTimeout(() => {
+        locked = false;
+      }, 480);
+    }
+  }, {passive:false});
+})();
+</script>
+
 </body>
 </html>
