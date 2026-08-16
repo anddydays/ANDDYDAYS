@@ -14866,199 +14866,51 @@ window.addEventListener('load',()=>{
 
 
 /* =========================================================
-   FIX — CAMERA CAT NO SOBRESALE DE LA DYNAMIC ISLAND
-   Desktop + tablet: when nav is compact, Camera Cat collapses
-   completely with the rest of the navigation.
+   VISUAL PLAYGROUND — CLICK / SWIPE COEXISTENCE FIX
 ========================================================= */
-@media (min-width:701px){
-  .nav.island-compact .camera-experience-link{
-    opacity:0 !important;
-    visibility:hidden !important;
-    pointer-events:none !important;
-
-    width:0 !important;
-    min-width:0 !important;
-    max-width:0 !important;
-    height:0 !important;
-
-    padding:0 !important;
-    margin:0 !important;
-    gap:0 !important;
-
-    border-width:0 !important;
-    overflow:hidden !important;
-
-    transform:scale(.75) !important;
-
-    transition:
-      opacity .18s ease,
-      visibility .18s ease,
-      width .32s cubic-bezier(.16,1,.3,1),
-      max-width .32s cubic-bezier(.16,1,.3,1),
-      padding .32s cubic-bezier(.16,1,.3,1),
-      margin .32s cubic-bezier(.16,1,.3,1),
-      transform .24s ease !important;
-  }
-
-  .nav.island-compact .camera-experience-link *{
-    opacity:0 !important;
-  }
-
-  /* Restore Camera Cat normally as soon as the island opens. */
-  .nav.island-expanded .camera-experience-link{
-    opacity:1 !important;
-    visibility:visible !important;
-    pointer-events:auto !important;
-
-    width:auto !important;
-    min-width:max-content !important;
-    max-width:none !important;
-    height:auto !important;
-
-    padding:10px 15px !important;
-    margin:0 !important;
-    gap:9px !important;
-
-    border-width:1px !important;
-    overflow:visible !important;
-    transform:none !important;
-  }
-
-  .nav.island-expanded .camera-experience-link *{
-    opacity:1 !important;
-  }
-}
-
-/* Tablet sizing after restoring the button. */
-@media (min-width:701px) and (max-width:1120px){
-  .nav.island-expanded .camera-experience-link{
-    padding:9px 12px !important;
-    gap:7px !important;
-  }
-}
-
-
-/* =========================================================
-   VISUAL PLAYGROUND — LIGHTBOX
-   Click any illustration to open it large.
-========================================================= */
-.visual-lightbox{
-  position:fixed;
-  inset:0;
-  z-index:99999;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:clamp(16px,4vw,52px);
-  background:rgba(0,0,0,.82);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  transition:opacity .28s ease,visibility .28s ease;
-}
-.visual-lightbox.open{
-  opacity:1;
-  visibility:visible;
-  pointer-events:auto;
-}
-.visual-lightbox-inner{
-  position:relative;
-  width:min(94vw,1300px);
-  height:min(90vh,950px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.visual-lightbox-img{
-  display:block;
-  max-width:100%;
-  max-height:100%;
-  width:auto;
-  height:auto;
-  object-fit:contain;
-  border-radius:18px;
-  box-shadow:0 35px 120px rgba(0,0,0,.65);
-  transform:scale(.965);
-  transition:transform .35s cubic-bezier(.16,1,.3,1);
-}
-.visual-lightbox.open .visual-lightbox-img{
-  transform:scale(1);
-}
-.visual-lightbox-close{
-  position:absolute;
-  top:-8px;
-  right:-8px;
-  z-index:3;
-  width:44px;
-  height:44px;
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,.28);
-  background:rgba(8,8,8,.65);
-  color:#fff;
-  display:grid;
-  place-items:center;
-  cursor:pointer;
-  font-size:23px;
-  line-height:1;
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
-  transition:background .2s ease,transform .2s ease;
-}
-.visual-lightbox-close:hover{
-  background:rgba(255,255,255,.12);
-  transform:scale(1.05);
-}
-.visual-lightbox-caption{
-  position:absolute;
-  left:50%;
-  bottom:-28px;
-  transform:translateX(-50%);
-  max-width:88vw;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  color:rgba(255,255,255,.72);
-  font-size:.62rem;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-}
-body.visual-lightbox-open{
-  overflow:hidden !important;
-}
-
-/* Visual Playground artworks feel clickable */
-#design img,
-#visual-playground img,
-.visual-playground img,
-.design-section img,
-.design-showcase img,
-.design-carousel img,
-.stack-zone#design img{
+#design .design-showcase-card,
+#design .design-showcase-card img{
   cursor:zoom-in !important;
 }
-
+#design .design-showcase-card img{
+  -webkit-user-drag:none !important;
+  user-select:none !important;
+  -webkit-user-select:none !important;
+}
+#design .design-showcase-card[data-pos="0"]::after{
+  content:"CLICK TO EXPAND";
+  position:absolute;
+  left:50%;
+  bottom:14px;
+  z-index:12;
+  transform:translateX(-50%) translateY(5px);
+  padding:7px 11px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  background:rgba(5,5,5,.46);
+  color:rgba(255,255,255,.82);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  font-size:8px;
+  letter-spacing:.14em;
+  white-space:nowrap;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease,transform .25s ease;
+}
+@media(hover:hover){
+  #design .design-showcase-card[data-pos="0"]:hover::after{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+}
 @media(max-width:700px){
-  .visual-lightbox{
-    padding:14px;
-  }
-  .visual-lightbox-inner{
-    width:100%;
-    height:84vh;
-  }
-  .visual-lightbox-img{
-    border-radius:14px;
-  }
-  .visual-lightbox-close{
-    width:40px;
-    height:40px;
-    top:-4px;
-    right:-2px;
-  }
-  .visual-lightbox-caption{
-    bottom:-22px;
-    font-size:.54rem;
+  #design .design-showcase-card[data-pos="0"]::after{
+    content:"TAP TO EXPAND";
+    opacity:.72;
+    bottom:10px;
+    font-size:7px;
+    padding:6px 9px;
   }
 }
 
@@ -15487,102 +15339,96 @@ body.visual-lightbox-open{
 </script>
 
 
-<div id="visualLightbox" class="visual-lightbox" aria-hidden="true">
-  <div class="visual-lightbox-inner" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
-    <button id="visualLightboxClose" class="visual-lightbox-close" type="button" aria-label="Cerrar imagen">×</button>
-    <img id="visualLightboxImg" class="visual-lightbox-img" alt="">
-    <div id="visualLightboxCaption" class="visual-lightbox-caption"></div>
-  </div>
-</div>
-
-
-<script>
+<script id="andy-vp-tap-lightbox-fix-v72">
 (() => {
-  const box = document.getElementById('visualLightbox');
-  const bigImg = document.getElementById('visualLightboxImg');
-  const caption = document.getElementById('visualLightboxCaption');
-  const closeBtn = document.getElementById('visualLightboxClose');
+  const section = document.getElementById('design');
+  const box = document.getElementById('vpLightbox');
+  const image = document.getElementById('vpLightboxImage');
+  const title = document.getElementById('vpLightboxTitle');
+  const counter = document.getElementById('vpLightboxCounter');
 
-  if(!box || !bigImg || !closeBtn) return;
+  if(!section || !box || !image) return;
 
-  const selectors = [
-    '#design img',
-    '#visual-playground img',
-    '.visual-playground img',
-    '.design-section img',
-    '.design-showcase img',
-    '.design-carousel img',
-    '.stack-zone#design img'
-  ];
+  const cards = [...section.querySelectorAll('.design-showcase-card')];
+  if(!cards.length) return;
 
-  const images = [...new Set(
-    selectors.flatMap(sel => [...document.querySelectorAll(sel)])
-  )];
+  let downCard = null;
+  let downX = 0;
+  let downY = 0;
+  let downTime = 0;
 
-  const openLightbox = (source) => {
-    const src = source.currentSrc || source.src;
-    if(!src) return;
+  function openCard(card){
+    const index = cards.indexOf(card);
+    const source = card.querySelector('img');
+    if(index < 0 || !source) return;
 
-    bigImg.src = src;
-    bigImg.alt = source.alt || 'Visual Playground artwork';
+    image.src = source.currentSrc || source.src;
+    image.alt = source.alt || card.dataset.title || 'Ilustración';
 
-    const label =
-      source.dataset.title ||
-      source.alt ||
-      source.closest('[data-title]')?.dataset.title ||
-      '';
+    if(title){
+      title.textContent = card.dataset.title || source.alt || '';
+    }
+    if(counter){
+      counter.textContent =
+        String(index + 1).padStart(2,'0') +
+        ' / ' +
+        String(cards.length).padStart(2,'0');
+    }
 
-    caption.textContent = label;
-    caption.style.display = label ? 'block' : 'none';
-
-    box.classList.add('open');
+    box.classList.add('is-open');
     box.setAttribute('aria-hidden','false');
-    document.body.classList.add('visual-lightbox-open');
-  };
+    document.body.classList.add('vp-lightbox-open');
+  }
 
-  const closeLightbox = () => {
-    box.classList.remove('open');
-    box.setAttribute('aria-hidden','true');
-    document.body.classList.remove('visual-lightbox-open');
+  /* A short pointer gesture is a tap/click.
+     A horizontal movement remains a carousel swipe. */
+  document.addEventListener('pointerdown', e => {
+    const card = e.target.closest?.('#design .design-showcase-card');
+    if(!card) return;
 
-    setTimeout(() => {
-      if(!box.classList.contains('open')){
-        bigImg.removeAttribute('src');
-      }
-    }, 280);
-  };
+    downCard = card;
+    downX = e.clientX;
+    downY = e.clientY;
+    downTime = performance.now();
+  }, true);
 
-  images.forEach(img => {
-    img.setAttribute('tabindex','0');
-    img.setAttribute('role','button');
+  document.addEventListener('pointerup', e => {
+    if(!downCard) return;
 
-    img.addEventListener('click', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      openLightbox(img);
-    });
+    const card = e.target.closest?.('#design .design-showcase-card');
+    const dx = e.clientX - downX;
+    const dy = e.clientY - downY;
+    const distance = Math.hypot(dx,dy);
+    const elapsed = performance.now() - downTime;
+    const sameCard = card === downCard;
 
-    img.addEventListener('keydown', e => {
-      if(e.key === 'Enter' || e.key === ' '){
-        e.preventDefault();
-        openLightbox(img);
-      }
-    });
-  });
+    const tappedCard = downCard;
+    downCard = null;
 
-  closeBtn.addEventListener('click', closeLightbox);
+    /* 12px tolerates normal finger/mouse movement but does not
+       interfere with the carousel's actual swipe threshold. */
+    if(!sameCard || distance > 12 || elapsed > 650) return;
 
-  box.addEventListener('click', e => {
-    if(e.target === box){
-      closeLightbox();
-    }
-  });
+    /* Only the selected/center card opens.
+       Clicking a side card keeps its original job: select it. */
+    if(tappedCard.dataset.pos !== '0') return;
 
-  window.addEventListener('keydown', e => {
-    if(e.key === 'Escape' && box.classList.contains('open')){
-      closeLightbox();
-    }
-  });
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+
+    openCard(tappedCard);
+  }, true);
+
+  /* Keyboard accessibility for the active drawing. */
+  document.addEventListener('keydown', e => {
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    const focused = document.activeElement?.closest?.('#design .design-showcase-card');
+    if(!focused || focused.dataset.pos !== '0') return;
+
+    e.preventDefault();
+    openCard(focused);
+  }, true);
 })();
 </script>
 
