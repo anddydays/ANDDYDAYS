@@ -70,6 +70,67 @@ button{font:inherit;color:inherit}
 .nav-index{display:flex;align-items:center;gap:9px}
 .dot{width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 18px rgba(255,255,255,.5)}
 
+/* CAMERA EXPERIENCE — acceso a la experiencia interactiva */
+.camera-experience-link{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  flex:0 0 auto;
+  padding:10px 15px;
+  border:1px solid rgba(255,255,255,.19);
+  border-radius:999px;
+  background:rgba(10,10,10,.16);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  color:#ededed;
+  font-size:.68rem;
+  line-height:1;
+  letter-spacing:.08em;
+  white-space:nowrap;
+  transition:
+    background .28s ease,
+    border-color .28s ease,
+    transform .28s cubic-bezier(.16,1,.3,1),
+    opacity .28s ease;
+}
+.camera-experience-dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 0 12px rgba(255,255,255,.42);
+  flex:0 0 auto;
+}
+.camera-experience-link:hover{
+  opacity:1;
+  background:rgba(255,255,255,.08);
+  border-color:rgba(255,255,255,.32);
+  transform:translateY(-1px);
+}
+
+/* En pantallas medianas se acorta el nombre para que la barra no se sature */
+@media(max-width:1120px){
+  .nav{gap:12px}
+  .nav-links{gap:18px}
+  .camera-experience-link{padding:9px 12px}
+  .camera-experience-label{font-size:0}
+  .camera-experience-label::after{
+    content:"Camera Cat";
+    font-size:.66rem;
+  }
+}
+
+/* En móvil la experiencia sigue accesible aunque el resto de enlaces se oculte */
+@media(max-width:900px){
+  .camera-experience-link{
+    display:inline-flex;
+    margin-left:auto;
+    margin-right:10px;
+  }
+  .nav-index{display:none}
+}
+
+
 .hero{
   min-height:100svh;position:relative;display:flex;align-items:flex-end;
   padding:130px 4.5% 45px;overflow:hidden;
@@ -11103,6 +11164,16 @@ portafolio-web/
     <a href="#about">About</a>
     <a href="#contact">Contact</a>
   </div>
+
+  <a class="camera-experience-link"
+     href="https://anddydays.github.io/ANDDY-EXPERIENCE/"
+     target="_blank"
+     rel="noopener noreferrer"
+     aria-label="Open Camera Cat">
+    <span class="camera-experience-dot"></span>
+    <span class="camera-experience-label">Camera Cat</span>
+  </a>
+
   <div class="nav-index micro"><span class="dot"></span> Portfolio 2026</div>
 </nav>
 
