@@ -14864,6 +14864,79 @@ window.addEventListener('load',()=>{
   display:inline !important;
 }
 
+
+/* =========================================================
+   FIX — CAMERA CAT NO SOBRESALE DE LA DYNAMIC ISLAND
+   Desktop + tablet: when nav is compact, Camera Cat collapses
+   completely with the rest of the navigation.
+========================================================= */
+@media (min-width:701px){
+  .nav.island-compact .camera-experience-link{
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+
+    width:0 !important;
+    min-width:0 !important;
+    max-width:0 !important;
+    height:0 !important;
+
+    padding:0 !important;
+    margin:0 !important;
+    gap:0 !important;
+
+    border-width:0 !important;
+    overflow:hidden !important;
+
+    transform:scale(.75) !important;
+
+    transition:
+      opacity .18s ease,
+      visibility .18s ease,
+      width .32s cubic-bezier(.16,1,.3,1),
+      max-width .32s cubic-bezier(.16,1,.3,1),
+      padding .32s cubic-bezier(.16,1,.3,1),
+      margin .32s cubic-bezier(.16,1,.3,1),
+      transform .24s ease !important;
+  }
+
+  .nav.island-compact .camera-experience-link *{
+    opacity:0 !important;
+  }
+
+  /* Restore Camera Cat normally as soon as the island opens. */
+  .nav.island-expanded .camera-experience-link{
+    opacity:1 !important;
+    visibility:visible !important;
+    pointer-events:auto !important;
+
+    width:auto !important;
+    min-width:max-content !important;
+    max-width:none !important;
+    height:auto !important;
+
+    padding:10px 15px !important;
+    margin:0 !important;
+    gap:9px !important;
+
+    border-width:1px !important;
+    overflow:visible !important;
+    transform:none !important;
+  }
+
+  .nav.island-expanded .camera-experience-link *{
+    opacity:1 !important;
+  }
+}
+
+/* Tablet sizing after restoring the button. */
+@media (min-width:701px) and (max-width:1120px){
+  .nav.island-expanded .camera-experience-link{
+    padding:9px 12px !important;
+    gap:7px !important;
+  }
+}
+
 </style>
 
 <script id="andy-iphone16-section-and-video-v80">
