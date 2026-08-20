@@ -11157,6 +11157,132 @@ body.vp-lightbox-open{
 }
 </style>
 
+
+<style id="andy-performance-repair-final">
+/* =========================================================
+   ANDY PERFORMANCE REPAIR — consolidated
+   One lightweight layer replaces multiple overlapping patches.
+========================================================= */
+
+/* Skip paint/layout work for sections far outside the viewport. */
+#experiments,
+#archive,
+#design,
+#about,
+#contact,
+.photography,
+.stack-zone{
+  content-visibility:auto;
+  contain-intrinsic-size:900px;
+}
+
+/* The old full-screen noise repaint is visually tiny but expensive. */
+body::after{
+  animation:none !important;
+  transform:none !important;
+}
+
+/* Cursor halo is decorative and causes continuous full-page compositing. */
+.cursor-glow{
+  display:none !important;
+}
+
+/* Avoid accidental animation work on hidden carousel cards. */
+#experiments .exp-card:not(.carousel-active):not(.carousel-prev):not(.carousel-next){
+  visibility:hidden;
+}
+
+/* Keep transitions, but avoid permanent transform layers on every asset. */
+.project-media,
+.photo-item img,
+.exp-card,
+.hero-media{
+  backface-visibility:hidden;
+}
+
+/* Tablet / mobile: cheaper glass and shadows, same dark visual language. */
+@media (max-width:900px), (pointer:coarse){
+  :root{ --blur:10px !important; }
+
+  body{
+    background-attachment:scroll !important;
+  }
+
+  body::before{
+    animation:none !important;
+    filter:blur(28px) !important;
+  }
+
+  .nav{
+    backdrop-filter:blur(9px) saturate(108%) !important;
+    -webkit-backdrop-filter:blur(9px) saturate(108%) !important;
+  }
+
+  .about-card,
+  .project-info,
+  .photo-label,
+  .exp-meta,
+  .exp-control-btn,
+  .exp-audio-btn,
+  .vp-lightbox-close,
+  .vp-lightbox-nav{
+    backdrop-filter:blur(7px) !important;
+    -webkit-backdrop-filter:blur(7px) !important;
+  }
+
+  .carousel-video-bg video{
+    filter:blur(6px) brightness(.62) saturate(1.02) !important;
+  }
+
+  .about-glow{
+    filter:blur(16px) !important;
+  }
+
+  .reveal{
+    filter:none !important;
+  }
+}
+
+/* iPhone-size: remove GPU effects that are essentially invisible at this size. */
+@media (max-width:600px){
+  body::before{
+    display:none !important;
+  }
+
+  .about-glow{
+    display:none !important;
+  }
+
+  .nav,
+  .about-card,
+  .exp-meta,
+  .exp-control-btn,
+  .photo-label{
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+  }
+
+  .experiments .exp-card{
+    box-shadow:0 16px 36px rgba(0,0,0,.24) !important;
+  }
+
+  .experiments .exp-card.carousel-active video{
+    transform:none !important;
+  }
+}
+
+/* Stop nonessential hover effects when reduced-motion is requested. */
+@media (prefers-reduced-motion:reduce){
+  .project-media,
+  .photo-item,
+  .photo-item img,
+  .design-showcase-card,
+  .exp-card{
+    transition:none !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -12726,81 +12852,8 @@ window.addEventListener('load',()=>{
 
 
 <!-- ANDY PERFORMANCE PASS — preserves layout/art direction, reduces GPU/CPU work -->
-<style id="andy-performance-pass">
-  /* Let the browser skip rendering distant sections until needed. */
-  .intro,.work,.stack-zone,.photography,.experiments,.about,.contact{
-    content-visibility:auto;
-    contain-intrinsic-size:900px;
-  }
-  .project-media,.photo-item img,.exp-card,.hero-media{backface-visibility:hidden}
 
-  /* Mobile Safari: keep the same glass look with cheaper compositing. */
-  @media (max-width:900px), (pointer:coarse){
-    :root{--blur:12px}
-    body{background-attachment:scroll !important}
-    body::before{animation:none !important;filter:blur(38px) !important}
-    .cursor-glow{display:none !important}
-    .about-glow{filter:blur(20px) !important}
-    .nav{backdrop-filter:blur(10px) saturate(110%) !important;-webkit-backdrop-filter:blur(10px) saturate(110%) !important}
-    .about-card,.project-info,.photo-label,.exp-meta,.exp-control-btn,.exp-audio-btn{
-      backdrop-filter:blur(8px) !important;
-      -webkit-backdrop-filter:blur(8px) !important;
-    }
-    .reveal{filter:none !important}
-    .something-photo-wall .photo-item:hover{transform:none !important;box-shadow:none !important}
-  }
 
-  /* iPhone-sized screens: eliminate effects that cost frames but are visually negligible. */
-  @media (max-width:600px){
-    body::before{filter:none !important;opacity:.7}
-    .about-glow{display:none !important}
-    .experiments .exp-card{box-shadow:0 18px 42px rgba(0,0,0,.28) !important}
-    .experiments .exp-card.carousel-active video{transform:none !important;transition:none !important}
-  }
-</style>
-<script id="andy-performance-runtime">
-(()=>{
-  const coarse = matchMedia('(pointer:coarse)').matches || innerWidth <= 900;
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  /* Background videos were previously excluded from pausing. Pause them whenever
-     their visual section is offscreen; this is one of the biggest mobile wins. */
-  const bgVideos = [...document.querySelectorAll('.about-bg-video, .carousel-video-bg video, .photography-video-bg video')];
-  if ('IntersectionObserver' in window) {
-    const bgObserver = new IntersectionObserver(entries=>{
-      entries.forEach(({target,isIntersecting})=>{
-        if(isIntersecting && !document.hidden){
-          if(target.muted) target.play().catch(()=>{});
-        } else {
-          target.pause();
-        }
-      });
-    }, {rootMargin:'120px 0px', threshold:.01});
-    bgVideos.forEach(v=>bgObserver.observe(v));
-  }
-
-  /* Don't decode all portfolio videos immediately. Metadata is enough until use. */
-  document.querySelectorAll('.exp-card video').forEach(v=>{
-    v.preload='metadata';
-    v.playsInline=true;
-  });
-
-  /* On touch/mobile, disable pointer-driven transforms entirely. */
-  if(coarse || reduce){
-    document.documentElement.classList.add('andy-lite-motion');
-  }
-
-  /* Pause every video when the tab is hidden. Resume only visible muted backgrounds
-     through their observer when the user returns. */
-  document.addEventListener('visibilitychange',()=>{
-    if(document.hidden){
-      document.querySelectorAll('video').forEach(v=>{
-        if(!v.paused){v.dataset.andyPausedByTab='1';v.pause()}
-      });
-    }
-  }, {passive:true});
-})();
-</script>
 
 
 <script>
@@ -12856,104 +12909,8 @@ window.addEventListener('load',()=>{
      ANDY PERFORMANCE v2 — 2026
      Mantiene el diseño; reduce trabajo continuo de GPU/CPU/red.
 ========================================================= -->
-<style id="andy-performance-v2">
-  /* El antiguo grain terminaba moviendo también la viñeta fija. Mantenerla
-     estática conserva el aspecto y evita repintar toda la pantalla cada .65 s. */
-  body::after{animation:none !important;transform:none !important;}
 
-  /* Evita composición innecesaria fuera de la sección visible. */
-  .experiments,.stack-zone,.about,.contact{
-    contain:layout paint style;
-  }
 
-  /* Un blur enorme sobre video es de las operaciones GPU más caras.
-     Desktop conserva el efecto; en dispositivos táctiles se reduce apenas. */
-  @media (max-width:900px), (pointer:coarse){
-    .carousel-video-bg video{filter:blur(8px) brightness(.64) saturate(1.04) !important;}
-    .photography-video-bg video{filter:blur(.2px) brightness(.92) saturate(1.04) !important;}
-    .about-bg-video{filter:none !important;}
-    .series-scroll-cue{animation:none !important;}
-    .horizontal-scroll-hint,.horizontal-scroll-hint .scroll-arrow{animation:none !important;}
-  }
-
-  /* En pantallas pequeñas, mantener sombras y filtros sencillos. */
-  @media (max-width:600px){
-    .nav,.about-card,.exp-meta,.exp-control-btn,.photo-label{
-      backdrop-filter:none !important;
-      -webkit-backdrop-filter:none !important;
-    }
-    .nav{background:rgba(8,8,8,.72) !important;}
-    .about-card,.exp-meta{background:rgba(8,8,8,.55) !important;}
-  }
-</style>
-<script id="andy-performance-v2-runtime">
-(()=>{
-  const experiments = document.querySelector('.experiments');
-  const expVideos = [...document.querySelectorAll('.exp-card video')];
-  const expBackgrounds = [...document.querySelectorAll('.carousel-video-bg video')];
-  const coarse = matchMedia('(pointer:coarse)').matches || innerWidth <= 900;
-
-  // Avoid network competition: non-active portfolio videos stay metadata-only.
-  expVideos.forEach(v => {
-    v.preload = 'metadata';
-    v.playsInline = true;
-  });
-
-  // When the entire video section is away, stop foreground AND duplicated bg video.
-  // This also protects against the carousel's own timer calling play() offscreen.
-  let experimentsVisible = false;
-  if (experiments && 'IntersectionObserver' in window) {
-    const sectionObserver = new IntersectionObserver(([entry]) => {
-      experimentsVisible = !!entry?.isIntersecting;
-      if (!experimentsVisible) {
-        [...expVideos, ...expBackgrounds].forEach(v => v.pause());
-      } else if (!document.hidden) {
-        const active = experiments.querySelector('.exp-card.carousel-active video');
-        active?.play().catch(()=>{});
-        if (!coarse) {
-          const bg = experiments.querySelector('.carousel-video-bg video.is-active');
-          bg?.play().catch(()=>{});
-        }
-      }
-    }, {rootMargin:'180px 0px', threshold:.01});
-    sectionObserver.observe(experiments);
-  }
-
-  // On phones/tablets, a second decoded copy of the active carousel video is costly.
-  // Keep the ambient layer visually present but frozen instead of decoding two videos.
-  if (coarse) {
-    expBackgrounds.forEach(v => {
-      v.pause();
-      v.removeAttribute('autoplay');
-    });
-  }
-
-  // Throttle global cursor-following elements to one update per animation frame.
-  const cursorGlow = document.getElementById('cursorGlow');
-  const viewCursor = document.querySelector('.andy-cursor');
-  if (!coarse && (cursorGlow || viewCursor)) {
-    let mx=0,my=0,raf=0;
-    const paint=()=>{
-      raf=0;
-      if(cursorGlow){ cursorGlow.style.left=mx+'px'; cursorGlow.style.top=my+'px'; }
-      if(viewCursor){ viewCursor.style.left=mx+'px'; viewCursor.style.top=my+'px'; }
-    };
-    window.addEventListener('mousemove',e=>{
-      mx=e.clientX; my=e.clientY;
-      if(!raf) raf=requestAnimationFrame(paint);
-    },{passive:true});
-  }
-
-  // Save power/network whenever the tab is not visible.
-  document.addEventListener('visibilitychange',()=>{
-    if(document.hidden){
-      document.querySelectorAll('video').forEach(v=>v.pause());
-    } else if(experimentsVisible){
-      experiments?.querySelector('.exp-card.carousel-active video')?.play().catch(()=>{});
-    }
-  },{passive:true});
-})();
-</script>
 
 
 
@@ -13252,124 +13209,8 @@ window.addEventListener('load',()=>{
 </script>
 
 
-<style id="andy-mobile-performance-v33">
-/* iPhone/WebView: menos capas GPU simultáneas sin cambiar la composición. */
-@media (max-width:700px), (pointer:coarse){
-  /* El fondo duplicado del carrusel es bonito en desktop, pero en móvil obliga
-     a decodificar otra copia del mismo video. Lo quitamos solo en teléfono. */
-  .carousel-video-bg{display:none !important;}
 
-  /* Cristales: conservar transparencia pero evitar múltiples blur de pantalla. */
-  .nav,
-  .about-card,
-  .exp-meta,
-  .exp-control-btn,
-  .photo-label,
-  .about-inline-photo,
-  .series-card figcaption{
-    -webkit-backdrop-filter:none !important;
-    backdrop-filter:none !important;
-  }
 
-  .nav{background:rgba(8,8,8,.82) !important;}
-  .about-card{background:rgba(8,8,8,.46) !important;}
-  .exp-meta{background:rgba(5,5,5,.55) !important;}
-
-  /* Menos sombras grandes = menos memoria de composición. */
-  .experiments .exp-card,
-  .series-card,
-  .about-inline-photo{
-    box-shadow:none !important;
-  }
-
-  /* Nada de transiciones largas en videos del carrusel. */
-  .experiments .exp-card video{
-    transition:none !important;
-  }
-
-  /* La frase dura más y tiene una meseta clara antes de desaparecer. */
-  .andy-transition-quote.show{
-    animation:andyQuoteSequenceMobile 4.8s cubic-bezier(.16,1,.3,1) forwards !important;
-  }
-  .andy-transition-quote.show .andy-transition-quote-inner{
-    animation:andyQuoteTextMobile 4.8s cubic-bezier(.16,1,.3,1) forwards !important;
-  }
-}
-
-@keyframes andyQuoteSequenceMobile{
-  0%{opacity:0}
-  12%{opacity:1}
-  84%{opacity:1}
-  100%{opacity:0}
-}
-@keyframes andyQuoteTextMobile{
-  0%{opacity:0;transform:translateY(8px)}
-  15%{opacity:1;transform:translateY(0)}
-  84%{opacity:1;transform:translateY(0)}
-  100%{opacity:0;transform:translateY(-6px)}
-}
-</style>
-<script id="andy-mobile-performance-runtime-v33">
-(()=>{
-  const mobile = matchMedia('(max-width:700px)').matches || matchMedia('(pointer:coarse)').matches;
-  if(!mobile) return;
-
-  const cards = [...document.querySelectorAll('.exp-card')];
-  const videos = cards.map(c=>c.querySelector('video')).filter(Boolean);
-  const experiments = document.querySelector('.experiments');
-
-  /* En móvil NO pedimos metadata de los 12+ videos al abrir la web. */
-  videos.forEach(v=>{
-    v.preload='none';
-    v.playsInline=true;
-  });
-
-  function warmActive(){
-    if(!experiments) return;
-    const active = experiments.querySelector('.exp-card.carousel-active video');
-
-    videos.forEach(v=>{
-      if(v === active){
-        if(v.preload !== 'auto'){
-          v.preload='auto';
-          try{v.load()}catch(e){}
-        }
-      }else{
-        try{v.pause()}catch(e){}
-        v.preload='none';
-      }
-    });
-  }
-
-  /* No tocar el carrusel hasta que esté cerca de la pantalla. */
-  if(experiments && 'IntersectionObserver' in window){
-    const io = new IntersectionObserver(([entry])=>{
-      if(entry?.isIntersecting){
-        warmActive();
-        setTimeout(warmActive,120);
-      } else {
-        videos.forEach(v=>v.pause());
-      }
-    },{rootMargin:'300px 0px',threshold:.01});
-    io.observe(experiments);
-  }
-
-  /* Cuando cambie la card activa, prepara SOLO la seleccionada. */
-  if(experiments){
-    const mo = new MutationObserver(()=>warmActive());
-    cards.forEach(c=>mo.observe(c,{attributes:true,attributeFilter:['class']}));
-  }
-
-  /* About background: no descargar/decodificar agresivamente antes de acercarse. */
-  const aboutVideo=document.querySelector('.about-bg-video');
-  if(aboutVideo){
-    aboutVideo.preload='none';
-  }
-
-  const photographyBg=document.querySelector('.photography-video-bg video');
-  if(photographyBg){photographyBg.preload='none';}
-})();
-</script>
 
 
 <script id="andy-design-showcase-js-v36-trackpad-swipe">
@@ -15340,133 +15181,7 @@ window.addEventListener('load',()=>{
 </script>
 
 
-<script id="andy-section-media-lifecycle-v10">
-(() => {
-  /* =========================================================
-     v10 — SECTION MEDIA LIFECYCLE
-     - Sección visible: prepara/reanuda solo sus fondos necesarios.
-     - Sección fuera: pausa videos y baja preload.
-     - En móvil es más agresivo para ahorrar memoria/datos/batería.
-     - No interfiere con el video activo de Editing & Motion;
-       ese lo controla el sincronizador móvil v9.
-  ========================================================= */
 
-  const isMobile =
-    window.matchMedia('(max-width:700px)').matches ||
-    window.matchMedia('(pointer:coarse)').matches;
-
-  const sections = [
-    document.getElementById('experiments'),
-    document.getElementById('archive'),
-    document.getElementById('design'),
-    document.getElementById('about')
-  ].filter(Boolean);
-
-  if (!sections.length || !('IntersectionObserver' in window)) return;
-
-  const experiments = document.getElementById('experiments');
-
-  function isManagedCarouselVideo(video){
-    return !!video.closest('#experiments .exp-card');
-  }
-
-  function isBackgroundVideo(video){
-    return (
-      video.classList.contains('visual-playground-video-bg') ||
-      video.classList.contains('about-bg-video') ||
-      !!video.closest('.photography-video-bg') ||
-      !!video.closest('.carousel-video-bg')
-    );
-  }
-
-  function deactivateSection(section){
-    const videos = [...section.querySelectorAll('video')];
-
-    videos.forEach(video => {
-      /* El carrusel de Editing & Motion ya tiene su propio
-         controlador móvil; solo lo pausamos si TODO experiments sale. */
-      try { video.pause(); } catch(e) {}
-
-      if (isMobile){
-        video.preload = 'none';
-
-        /* No borramos src para que volver atrás no obligue a una
-           descarga completa desde cero. Solo detenemos carga anticipada. */
-      }
-    });
-
-    section.dataset.mediaActive = '0';
-  }
-
-  function activateSection(section){
-    const videos = [...section.querySelectorAll('video')];
-
-    videos.forEach(video => {
-      /* Editing & Motion se deja en manos del sistema v9:
-         solo el seleccionado + su fondo. */
-      if (section === experiments && isManagedCarouselVideo(video)) {
-        return;
-      }
-
-      if (isMobile){
-        /* Solo los fondos de la sección visible reciben metadata/auto. */
-        if (isBackgroundVideo(video)){
-          video.preload = 'metadata';
-        }
-      }
-
-      /* Reanudar únicamente fondos/autoplay silenciosos.
-         No forzamos videos que el usuario debería iniciar manualmente. */
-      const shouldAutoResume =
-        video.autoplay ||
-        isBackgroundVideo(video);
-
-      if (shouldAutoResume){
-        video.muted = true;
-        video.playsInline = true;
-
-        try{
-          const p = video.play();
-          if (p && typeof p.catch === 'function') p.catch(()=>{});
-        }catch(e){}
-      }
-    });
-
-    section.dataset.mediaActive = '1';
-  }
-
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      const section = entry.target;
-
-      /* 12% visible ya cuenta como sección activa.
-         rootMargin anticipa un poco la preparación al acercarse. */
-      if (entry.isIntersecting && entry.intersectionRatio > .04){
-        activateSection(section);
-      }else{
-        deactivateSection(section);
-      }
-    });
-  }, {
-    rootMargin: isMobile ? '100px 0px 100px 0px' : '220px 0px 220px 0px',
-    threshold:[0,.04,.12,.4]
-  });
-
-  sections.forEach(section => observer.observe(section));
-
-  /* Al ocultar la pestaña, todo se pausa inmediatamente. */
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden){
-      sections.forEach(deactivateSection);
-    }
-  });
-
-  /* Seguridad al abandonar la página. */
-  window.addEventListener('pagehide', () => {
-    sections.forEach(deactivateSection);
-  });
-})();
-</script>
 
 
 <script id="andy-vp-lightbox-click-final-js">
@@ -15763,75 +15478,222 @@ window.addEventListener('load',()=>{
 
 
 <!-- ANDY SPEED PATCH v11 -->
-<style id="andy-speed-patch-v11">
-  /* Reduce continuous GPU work without changing layout. */
-  @media (max-width:900px), (pointer:coarse){
-    body::before{animation:none !important;}
-    .cursor-glow{display:none !important;}
+
+
+
+
+<script id="andy-performance-repair-final-js">
+(() => {
+  const isMobile =
+    matchMedia('(max-width:700px)').matches ||
+    matchMedia('(pointer:coarse)').matches;
+
+  const experiments = document.getElementById('experiments');
+  const sections = [
+    experiments,
+    document.getElementById('archive'),
+    document.getElementById('design'),
+    document.getElementById('about')
+  ].filter(Boolean);
+
+  const expCards = experiments
+    ? [...experiments.querySelectorAll('.exp-card')]
+    : [];
+
+  const expVideos = expCards
+    .map(card => card.querySelector('video'))
+    .filter(Boolean);
+
+  const expBackgrounds = experiments
+    ? [...experiments.querySelectorAll('.carousel-video-bg video')]
+    : [];
+
+  /* Default network posture: nothing heavy until it is useful. */
+  expVideos.forEach(v => {
+    v.preload = 'none';
+    v.playsInline = true;
+  });
+
+  expBackgrounds.forEach(v => {
+    v.preload = 'none';
+    v.muted = true;
+    v.playsInline = true;
+    if (isMobile) {
+      try { v.pause(); } catch(e) {}
+      v.removeAttribute('autoplay');
+    }
+  });
+
+  const passiveBackground = video =>
+    video.classList.contains('visual-playground-video-bg') ||
+    video.classList.contains('about-bg-video') ||
+    !!video.closest('.photography-video-bg');
+
+  function activeExperimentVideo(){
+    return experiments?.querySelector('.exp-card.carousel-active video') || null;
   }
-</style>
-<script id="andy-speed-patch-v11-js">
-(()=>{
-  const exp = document.getElementById('experiments');
-  const videos = [...document.querySelectorAll('#experiments .exp-card video')];
 
-  function optimizeCarouselNetwork(){
-    if(!videos.length) return;
-    const active = exp?.querySelector('.exp-card.carousel-active video');
-    const prev = exp?.querySelector('.exp-card.carousel-prev video');
-    const next = exp?.querySelector('.exp-card.carousel-next video');
+  function optimizeExperimentNetwork(){
+    if (!experiments) return;
 
-    videos.forEach(v=>{
-      if(v === active){
-        if(v.preload !== 'auto'){
+    const active = activeExperimentVideo();
+    const prev = experiments.querySelector('.exp-card.carousel-prev video');
+    const next = experiments.querySelector('.exp-card.carousel-next video');
+
+    expVideos.forEach(v => {
+      if (v === active) {
+        if (v.preload !== 'auto') {
           v.preload = 'auto';
-          try{ v.load(); }catch(e){}
+          if (v.readyState === 0) {
+            try { v.load(); } catch(e) {}
+          }
         }
-      }else if(v === prev || v === next){
+      } else if (!isMobile && (v === prev || v === next)) {
         v.preload = 'metadata';
-      }else{
-        try{ v.pause(); }catch(e){}
+        try { v.pause(); } catch(e) {}
+      } else {
+        try { v.pause(); } catch(e) {}
         v.preload = 'none';
       }
     });
   }
 
-  if(exp){
-    const io = new IntersectionObserver(([entry])=>{
-      if(entry && entry.isIntersecting){
-        optimizeCarouselNetwork();
-      }else{
-        videos.forEach(v=>{
-          try{v.pause()}catch(e){}
-          v.preload='none';
+  function deactivate(section){
+    section.querySelectorAll('video').forEach(v => {
+      try { v.pause(); } catch(e) {}
+
+      if (isMobile && (
+        v.closest('#experiments') ||
+        passiveBackground(v) ||
+        v.closest('.carousel-video-bg')
+      )) {
+        v.preload = 'none';
+      }
+    });
+    section.dataset.mediaActive = '0';
+  }
+
+  function activate(section){
+    section.dataset.mediaActive = '1';
+
+    if (section === experiments) {
+      optimizeExperimentNetwork();
+      const active = activeExperimentVideo();
+
+      if (active && !document.hidden) {
+        active.muted = true;
+        active.playsInline = true;
+        active.play().catch(()=>{});
+      }
+
+      /* On mobile do NOT decode a duplicated blurred video in background. */
+      if (isMobile) {
+        expBackgrounds.forEach(v => {
+          try { v.pause(); } catch(e) {}
         });
       }
-    },{rootMargin:'250px 0px',threshold:.01});
-    io.observe(exp);
+      return;
+    }
 
-    const mo = new MutationObserver(optimizeCarouselNetwork);
-    exp.querySelectorAll('.exp-card').forEach(card=>{
-      mo.observe(card,{attributes:true,attributeFilter:['class']});
+    section.querySelectorAll('video').forEach(v => {
+      if (!passiveBackground(v)) return;
+
+      v.muted = true;
+      v.playsInline = true;
+      v.preload = isMobile ? 'metadata' : 'auto';
+
+      if (!document.hidden) {
+        v.play().catch(()=>{});
+      }
     });
   }
 
-  /* On repeat visits in the same tab, skip most of the intro wait. */
-  try{
-    if(sessionStorage.getItem('andyVisited') === '1'){
+  /* One observer for the major media sections. */
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && entry.intersectionRatio > .025) {
+          activate(entry.target);
+        } else {
+          deactivate(entry.target);
+        }
+      });
+    }, {
+      rootMargin: isMobile ? '80px 0px' : '180px 0px',
+      threshold:[0,.03,.15]
+    });
+
+    sections.forEach(section => io.observe(section));
+  }
+
+  /* One mutation observer for the carousel, instead of several competing ones. */
+  if (experiments && expCards.length && 'MutationObserver' in window) {
+    let scheduled = false;
+
+    const mo = new MutationObserver(() => {
+      if (scheduled) return;
+      scheduled = true;
+
+      requestAnimationFrame(() => {
+        scheduled = false;
+        if (experiments.dataset.mediaActive === '1') {
+          optimizeExperimentNetwork();
+        }
+      });
+    });
+
+    expCards.forEach(card =>
+      mo.observe(card, {
+        attributes:true,
+        attributeFilter:['class']
+      })
+    );
+  }
+
+  /* Stop all media immediately when tab is hidden. */
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      document.querySelectorAll('video').forEach(v => {
+        try { v.pause(); } catch(e) {}
+      });
+      return;
+    }
+
+    sections.forEach(section => {
+      if (section.dataset.mediaActive === '1') {
+        activate(section);
+      }
+    });
+  }, {passive:true});
+
+  /* Page exit cleanup. */
+  window.addEventListener('pagehide', () => {
+    document.querySelectorAll('video').forEach(v => {
+      try { v.pause(); } catch(e) {}
+    });
+  }, {once:true});
+
+  /* Repeat visits: don't hold the visitor in the intro again. */
+  try {
+    if (sessionStorage.getItem('andyVisited') === '1') {
       const loader = document.getElementById('andyPreloader');
       const quote = document.getElementById('andyTransitionQuote');
-      if(loader){
-        setTimeout(()=>{
+
+      if (loader) {
+        setTimeout(() => {
           loader.classList.add('done');
           document.documentElement.classList.remove('andy-loading');
-          setTimeout(()=>loader.remove(),250);
-          if(quote) quote.remove();
-        },350);
+
+          setTimeout(() => {
+            loader.remove();
+            quote?.remove();
+          }, 220);
+        }, 260);
       }
-    }else{
-      sessionStorage.setItem('andyVisited','1');
+    } else {
+      sessionStorage.setItem('andyVisited', '1');
     }
-  }catch(e){}
+  } catch(e) {}
 })();
 </script>
 
