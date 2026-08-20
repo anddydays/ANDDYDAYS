@@ -11355,6 +11355,165 @@ body.vp-info-open{overflow:hidden!important}
 }
 </style>
 
+
+
+<style id="andy-vp-infographics-layout-fix-v82">
+/* =========================================================
+   v82 — VISUAL PLAYGROUND + INFOGRAPHICS / LAYOUT FIX
+   Mantiene visible el carrusel de dibujos y coloca Infographics
+   debajo como una subsección editorial independiente.
+========================================================= */
+
+/* El antiguo ajuste de laptop fijaba Visual Playground a 100svh.
+   Al añadir una segunda subsección, el carrusel se comprimía hasta
+   prácticamente desaparecer. Ahora la sección puede crecer. */
+@media (min-width:901px){
+  #design.design-showcase{
+    height:auto !important;
+    min-height:100svh !important;
+    overflow:hidden !important;
+    display:block !important;
+    padding-top:clamp(78px,8vh,96px) !important;
+    padding-bottom:clamp(90px,8vw,140px) !important;
+  }
+
+  #design .design-showcase-head{
+    margin-bottom:clamp(34px,4vw,58px) !important;
+  }
+
+  /* Recupera el espacio real del carrusel de ilustraciones. */
+  #design .design-showcase-stage{
+    display:flex !important;
+    min-height:560px !important;
+    height:560px !important;
+    flex:none !important;
+    align-items:center !important;
+  }
+  #design .design-showcase-viewport{
+    height:560px !important;
+    min-height:560px !important;
+    display:flex !important;
+    align-items:center !important;
+  }
+  #design .design-showcase-track{
+    height:540px !important;
+    max-height:none !important;
+  }
+  #design .design-showcase-card{
+    width:min(23vw,330px) !important;
+    max-height:none !important;
+  }
+
+  #design .design-showcase-meta{
+    margin-top:24px !important;
+    padding-top:20px !important;
+  }
+}
+
+/* INFOGRAPHICS: bloque más compacto y editorial. */
+#design .vp-infographics{
+  width:min(90%,1240px) !important;
+  margin:clamp(100px,10vw,160px) auto 0 !important;
+  padding-top:clamp(30px,3vw,46px) !important;
+}
+
+#design .vp-infographics-head{
+  display:block !important;
+  margin-bottom:clamp(34px,4vw,54px) !important;
+}
+
+#design .vp-infographics-kicker{
+  margin-bottom:18px !important;
+}
+
+#design .vp-infographics-title h3{
+  font-size:clamp(3.4rem,6vw,6.8rem) !important;
+  line-height:.88 !important;
+  max-width:760px;
+}
+
+#design .vp-infographics-title p{
+  max-width:720px !important;
+  margin-top:16px !important;
+}
+
+#design .vp-infographics-grid{
+  grid-template-columns:repeat(2,minmax(0,460px)) !important;
+  justify-content:center !important;
+  gap:clamp(34px,4vw,58px) !important;
+  align-items:start !important;
+}
+
+#design .vp-infographic-frame{
+  border-radius:14px !important;
+  background:#080808 !important;
+}
+
+#design .vp-infographic-frame img{
+  width:100% !important;
+  height:auto !important;
+  object-fit:contain !important;
+}
+
+#design .vp-infographic-meta{
+  margin-top:10px !important;
+  padding-top:12px !important;
+}
+
+/* Tablet: dibujos siguen teniendo altura y las infografías pasan a una columna
+   cuando ya no conviene mantenerlas lado a lado. */
+@media (max-width:900px){
+  #design.design-showcase{
+    height:auto !important;
+    min-height:100dvh !important;
+    overflow:hidden !important;
+    padding-bottom:80px !important;
+  }
+  #design .design-showcase-stage{
+    min-height:470px !important;
+    height:470px !important;
+  }
+  #design .design-showcase-viewport{
+    height:470px !important;
+    min-height:470px !important;
+  }
+  #design .design-showcase-track{
+    height:450px !important;
+    max-height:none !important;
+  }
+  #design .vp-infographics{
+    width:calc(100% - 36px) !important;
+    margin-top:78px !important;
+  }
+  #design .vp-infographics-grid{
+    grid-template-columns:minmax(0,520px) !important;
+    justify-content:center !important;
+    gap:46px !important;
+  }
+}
+
+@media (max-width:600px){
+  #design .design-showcase-stage{
+    min-height:410px !important;
+    height:410px !important;
+  }
+  #design .design-showcase-viewport{
+    height:410px !important;
+    min-height:410px !important;
+  }
+  #design .design-showcase-track{
+    height:390px !important;
+  }
+  #design .vp-infographics{
+    margin-top:64px !important;
+    padding-top:24px !important;
+  }
+  #design .vp-infographics-title h3{
+    font-size:clamp(3rem,15vw,4.6rem) !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
