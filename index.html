@@ -11692,7 +11692,7 @@ portafolio-web/
     </div>
 
     <div class="design-showcase-meta-right">
-      <span id="designShowcaseType">Visual Study</span>
+      <span id="designShowcaseType" style="display:none"></span>
       <span id="designShowcaseCount">04 / 10</span>
     </div>
   </div>
@@ -13409,7 +13409,9 @@ window.addEventListener('load',()=>{
     const c=cards[active];
     if(!c)return;
     title.textContent=c.dataset.title||'';
-    type.textContent=c.dataset.type||'';
+    const isInfographic = c.dataset.type === 'Infografía';
+    type.textContent = isInfographic ? 'Infografía' : '';
+    type.style.display = isInfographic ? '' : 'none';
     count.textContent=String(active+1).padStart(2,'0')+' / '+String(cards.length).padStart(2,'0');
   }
 
