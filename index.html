@@ -11162,7 +11162,7 @@ body.vp-lightbox-open{
 
 <div class="andy-preloader andy-video-preloader" id="andyPreloader" aria-hidden="true">
   <video class="andy-preloader-video" id="andyPreloaderVideo"
-         autoplay muted playsinline webkit-playsinline preload="auto">
+         autoplay muted playsinline webkit-playsinline preload="metadata">
     <source src="videos/pantalla de carga.mp4" type="video/mp4">
   </video>
   <div class="andy-preloader-shade"></div>
@@ -11435,7 +11435,7 @@ portafolio-web/
 
 <section class="photography-bg-section stack-zone" id="archive">
   <div class="photography-video-bg" aria-hidden="true">
-    <video src="videos/fondo.mp4" muted loop playsinline preload="metadata"></video>
+    <video src="videos/fondo.mp4" muted loop playsinline preload="none"></video>
   </div>
   <div class="container">
     <div class="stack-head reveal">
@@ -11583,7 +11583,7 @@ portafolio-web/
 
 
 <section class="design-showcase" id="design">
-  <video class="visual-playground-video-bg" src="videos/art.mp4" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
+  <video class="visual-playground-video-bg" src="videos/art.mp4" autoplay muted loop playsinline preload="none" aria-hidden="true"></video>
   <div class="container design-showcase-head reveal">
     <div>
       <div class="micro">Design / Illustration</div>
@@ -11665,7 +11665,7 @@ portafolio-web/
 
         <article class="design-showcase-card"
                  data-title="Rufino Tamayo"
-                 data-type="Infografías">
+                 data-type="Infografía">
           <img loading="lazy" decoding="async"
                src="Dibujos/tamayo.jpg"
                alt="Rufino Tamayo — infografía">
@@ -11673,7 +11673,7 @@ portafolio-web/
 
         <article class="design-showcase-card"
                  data-title="La Nutrición moderna"
-                 data-type="Infografías">
+                 data-type="Infografía">
           <img loading="lazy" decoding="async"
                src="Dibujos/antoine.jpg"
                alt="La Nutrición moderna — infografía">
@@ -11699,7 +11699,7 @@ portafolio-web/
 </section>
 
 <section class="about" id="about">
-  <video class="about-bg-video" muted loop playsinline preload="metadata">
+  <video class="about-bg-video" muted loop playsinline preload="none">
     <source src="videos/gato.mp4" type="video/mp4">
   </video>
   <div class="about-glow"></div>
@@ -12412,8 +12412,8 @@ window.addEventListener('load',()=>{
     let clockRaf = 0;
     let startedAt = 0;
     let actualPlaybackStarted = false;
-    const FALLBACK_MS = 10000;
-    const QUOTE_MS = 4800;
+    const FALLBACK_MS = 1800;
+    const QUOTE_MS = 1300;
 
     const render = n => {
       const value = Math.max(1, Math.min(100, Math.round(n)));
@@ -12431,12 +12431,12 @@ window.addEventListener('load',()=>{
       setTimeout(() => {
         if (quote) quote.classList.add('show');
         loader.classList.add('done');
-      }, 260);
+      }, 120);
 
       setTimeout(() => {
         try { video?.pause(); } catch(e) {}
         loader.remove();
-      }, 1900);
+      }, 850);
 
       /* Frase visible bastante más tiempo para poder leer ambos idiomas. */
       setTimeout(() => {
@@ -12520,7 +12520,7 @@ window.addEventListener('load',()=>{
       }, 700);
 
       /* Seguro absoluto para no dejar una pantalla atrapada por errores raros. */
-      setTimeout(finish, 15500);
+      setTimeout(finish, 2600);
     } else {
       startedAt = performance.now();
       clockRaf = requestAnimationFrame(syncFallbackClock);
@@ -15758,6 +15758,80 @@ window.addEventListener('load',()=>{
       }, 480);
     }
   }, {passive:false});
+})();
+</script>
+
+
+<!-- ANDY SPEED PATCH v11 -->
+<style id="andy-speed-patch-v11">
+  /* Reduce continuous GPU work without changing layout. */
+  @media (max-width:900px), (pointer:coarse){
+    body::before{animation:none !important;}
+    .cursor-glow{display:none !important;}
+  }
+</style>
+<script id="andy-speed-patch-v11-js">
+(()=>{
+  const exp = document.getElementById('experiments');
+  const videos = [...document.querySelectorAll('#experiments .exp-card video')];
+
+  function optimizeCarouselNetwork(){
+    if(!videos.length) return;
+    const active = exp?.querySelector('.exp-card.carousel-active video');
+    const prev = exp?.querySelector('.exp-card.carousel-prev video');
+    const next = exp?.querySelector('.exp-card.carousel-next video');
+
+    videos.forEach(v=>{
+      if(v === active){
+        if(v.preload !== 'auto'){
+          v.preload = 'auto';
+          try{ v.load(); }catch(e){}
+        }
+      }else if(v === prev || v === next){
+        v.preload = 'metadata';
+      }else{
+        try{ v.pause(); }catch(e){}
+        v.preload = 'none';
+      }
+    });
+  }
+
+  if(exp){
+    const io = new IntersectionObserver(([entry])=>{
+      if(entry && entry.isIntersecting){
+        optimizeCarouselNetwork();
+      }else{
+        videos.forEach(v=>{
+          try{v.pause()}catch(e){}
+          v.preload='none';
+        });
+      }
+    },{rootMargin:'250px 0px',threshold:.01});
+    io.observe(exp);
+
+    const mo = new MutationObserver(optimizeCarouselNetwork);
+    exp.querySelectorAll('.exp-card').forEach(card=>{
+      mo.observe(card,{attributes:true,attributeFilter:['class']});
+    });
+  }
+
+  /* On repeat visits in the same tab, skip most of the intro wait. */
+  try{
+    if(sessionStorage.getItem('andyVisited') === '1'){
+      const loader = document.getElementById('andyPreloader');
+      const quote = document.getElementById('andyTransitionQuote');
+      if(loader){
+        setTimeout(()=>{
+          loader.classList.add('done');
+          document.documentElement.classList.remove('andy-loading');
+          setTimeout(()=>loader.remove(),250);
+          if(quote) quote.remove();
+        },350);
+      }
+    }else{
+      sessionStorage.setItem('andyVisited','1');
+    }
+  }catch(e){}
 })();
 </script>
 
