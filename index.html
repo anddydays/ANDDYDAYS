@@ -11283,6 +11283,72 @@ body::after{
 }
 </style>
 
+
+<style id="andy-infografias-carousel-final">
+/* =========================================================
+   VISUAL PLAYGROUND — INFOGRAFÍAS
+   Permanecen dentro del mismo carrusel, pero respetan
+   su proporción editorial vertical.
+========================================================= */
+
+#design .design-showcase-card[data-type="Infografía"]{
+  aspect-ratio:9 / 16 !important;
+  width:min(17.5vw,245px) !important;
+  max-height:none !important;
+  background:#070707 !important;
+}
+
+#design .design-showcase-card[data-type="Infografía"] img{
+  width:100% !important;
+  height:100% !important;
+  padding:5px !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  transform:none !important;
+}
+
+#design .design-showcase-card[data-type="Infografía"][data-pos="0"]{
+  width:min(19vw,265px) !important;
+}
+
+#design .design-showcase-card[data-type="Infografía"][data-pos="-1"],
+#design .design-showcase-card[data-type="Infografía"][data-pos="1"]{
+  width:min(17vw,235px) !important;
+}
+
+#design .design-showcase-card[data-type="Infografía"][data-pos="-2"],
+#design .design-showcase-card[data-type="Infografía"][data-pos="2"]{
+  width:min(15.5vw,215px) !important;
+}
+
+@media (min-width:901px) and (max-height:820px){
+  #design .design-showcase-card[data-type="Infografía"]{
+    width:min(15.2vw,205px) !important;
+  }
+  #design .design-showcase-card[data-type="Infografía"][data-pos="0"]{
+    width:min(17vw,225px) !important;
+  }
+}
+
+@media (max-width:900px){
+  #design .design-showcase-card[data-type="Infografía"]{
+    width:min(34vw,225px) !important;
+  }
+  #design .design-showcase-card[data-type="Infografía"][data-pos="0"]{
+    width:min(39vw,245px) !important;
+  }
+}
+
+@media (max-width:700px){
+  #design .design-showcase-card[data-type="Infografía"]{
+    width:min(47vw,205px) !important;
+  }
+  #design .design-showcase-card[data-type="Infografía"][data-pos="0"]{
+    width:min(52vw,220px) !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
