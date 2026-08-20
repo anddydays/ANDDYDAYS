@@ -242,7 +242,6 @@ button{font:inherit;color:inherit}
 .circle-btn{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.02);cursor:pointer}
 
 
-
 .photography{padding:150px 0 165px;background:#050505;overflow:hidden}
 .photo-head{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:end;margin-bottom:60px}
 .photo-head h2{font-size:clamp(3.8rem,8vw,9rem);font-weight:300;line-height:.8;letter-spacing:-.055em}
@@ -5454,7 +5453,6 @@ html.andy-loading body{
 </style>
 
 
-
 <style id="andy-about-inline-gallery-v12">
 /* =========================================================
    v12 — Galería DENTRO de la tarjeta About Me
@@ -5766,9 +5764,6 @@ body.about-lightbox-open{
   object-position:center center;
 }
 </style>
-
-
-
 
 
 <style id="andy-personal-work-six-card-fix-v22">
@@ -7912,85 +7907,6 @@ body{
   #archive .archive-scroll-hint{
     top:42% !important;
     right:12px !important;
-  }
-}
-</style>
-
-
-<style id="andy-archive-hint-mobile-fixed-v56">
-/* =========================================================
-   v56 — FIX REAL DEL LIQUID GLASS EN ARCHIVE MÓVIL
-   Se mueve TODA la cápsula, no el texto interno.
-========================================================= */
-
-@media(max-width:700px){
-
-  /* El encabezado necesita espacio suficiente debajo del título */
-  #archive .stack-head{
-    position:relative !important;
-    padding-bottom:132px !important;
-  }
-
-  /* La cápsula completa queda debajo de "Something we keep" */
-  #archive .archive-scroll-hint{
-    position:absolute !important;
-
-    top:auto !important;
-    bottom:24px !important;
-
-    right:14px !important;
-    left:auto !important;
-
-    transform:none !important;
-    margin:0 !important;
-
-    width:max-content !important;
-    max-width:calc(100vw - 42px) !important;
-
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    gap:13px !important;
-
-    z-index:30 !important;
-  }
-
-  /* Restauramos el texto por si algún override viejo lo afectó */
-  #archive .archive-scroll-hint-text{
-    position:relative !important;
-    inset:auto !important;
-    transform:none !important;
-    margin:0 !important;
-    display:inline-block !important;
-
-    color:rgba(255,255,255,.96) !important;
-    opacity:1 !important;
-    visibility:visible !important;
-
-    white-space:nowrap !important;
-  }
-
-  #archive .archive-scroll-hint-arrow{
-    position:relative !important;
-    inset:auto !important;
-    transform:none;
-    margin:0 !important;
-    display:inline-block !important;
-  }
-}
-
-/* iPhone estrecho */
-@media(max-width:390px){
-  #archive .stack-head{
-    padding-bottom:138px !important;
-  }
-
-  #archive .archive-scroll-hint{
-    right:10px !important;
-    bottom:22px !important;
-    padding:11px 14px !important;
-    font-size:8.5px !important;
-    letter-spacing:.12em !important;
   }
 }
 </style>
@@ -10499,7 +10415,6 @@ body.vp-lightbox-open{
 </style>
 
 
-
 <style id="andy-macbook14-viewport-fit-v72">
 /* =========================================================
    v72 — AJUSTE DE VIEWPORT PARA LAPTOP / MACBOOK 14"
@@ -10686,7 +10601,6 @@ body.vp-lightbox-open{
   }
 }
 </style>
-
 
 
 <style id="andy-macbook14-refine-v73">
@@ -11158,132 +11072,6 @@ body.vp-lightbox-open{
 </style>
 
 
-<style id="andy-performance-repair-final">
-/* =========================================================
-   ANDY PERFORMANCE REPAIR — consolidated
-   One lightweight layer replaces multiple overlapping patches.
-========================================================= */
-
-/* Skip paint/layout work for sections far outside the viewport. */
-#experiments,
-#archive,
-#design,
-#about,
-#contact,
-.photography,
-.stack-zone{
-  content-visibility:auto;
-  contain-intrinsic-size:900px;
-}
-
-/* The old full-screen noise repaint is visually tiny but expensive. */
-body::after{
-  animation:none !important;
-  transform:none !important;
-}
-
-/* Cursor halo is decorative and causes continuous full-page compositing. */
-.cursor-glow{
-  display:none !important;
-}
-
-/* Avoid accidental animation work on hidden carousel cards. */
-#experiments .exp-card:not(.carousel-active):not(.carousel-prev):not(.carousel-next){
-  visibility:hidden;
-}
-
-/* Keep transitions, but avoid permanent transform layers on every asset. */
-.project-media,
-.photo-item img,
-.exp-card,
-.hero-media{
-  backface-visibility:hidden;
-}
-
-/* Tablet / mobile: cheaper glass and shadows, same dark visual language. */
-@media (max-width:900px), (pointer:coarse){
-  :root{ --blur:10px !important; }
-
-  body{
-    background-attachment:scroll !important;
-  }
-
-  body::before{
-    animation:none !important;
-    filter:blur(28px) !important;
-  }
-
-  .nav{
-    backdrop-filter:blur(9px) saturate(108%) !important;
-    -webkit-backdrop-filter:blur(9px) saturate(108%) !important;
-  }
-
-  .about-card,
-  .project-info,
-  .photo-label,
-  .exp-meta,
-  .exp-control-btn,
-  .exp-audio-btn,
-  .vp-lightbox-close,
-  .vp-lightbox-nav{
-    backdrop-filter:blur(7px) !important;
-    -webkit-backdrop-filter:blur(7px) !important;
-  }
-
-  .carousel-video-bg video{
-    filter:blur(6px) brightness(.62) saturate(1.02) !important;
-  }
-
-  .about-glow{
-    filter:blur(16px) !important;
-  }
-
-  .reveal{
-    filter:none !important;
-  }
-}
-
-/* iPhone-size: remove GPU effects that are essentially invisible at this size. */
-@media (max-width:600px){
-  body::before{
-    display:none !important;
-  }
-
-  .about-glow{
-    display:none !important;
-  }
-
-  .nav,
-  .about-card,
-  .exp-meta,
-  .exp-control-btn,
-  .photo-label{
-    backdrop-filter:none !important;
-    -webkit-backdrop-filter:none !important;
-  }
-
-  .experiments .exp-card{
-    box-shadow:0 16px 36px rgba(0,0,0,.24) !important;
-  }
-
-  .experiments .exp-card.carousel-active video{
-    transform:none !important;
-  }
-}
-
-/* Stop nonessential hover effects when reduced-motion is requested. */
-@media (prefers-reduced-motion:reduce){
-  .project-media,
-  .photo-item,
-  .photo-item img,
-  .design-showcase-card,
-  .exp-card{
-    transition:none !important;
-  }
-}
-</style>
-
-
 <style id="andy-infografias-carousel-final">
 /* =========================================================
    VISUAL PLAYGROUND — INFOGRAFÍAS
@@ -11505,9 +11293,6 @@ portafolio-web/
   </div>
   <div class="scroll-cue micro"><span>Scroll to explore</span><div class="scroll-line"></div></div>
 </header>
-
-
-
 
 
 <section class="experiments" id="experiments">
@@ -11771,7 +11556,6 @@ portafolio-web/
     </div>
   </div>
 </section>
-
 
 
 <section class="design-showcase" id="design">
@@ -12104,7 +11888,6 @@ motionCardsV2.forEach((card) => {
 /* VIDEO CONTROLS END */
 
 
-
 /* =========================================================
    AUTOMATIC VIDEO CAROUSEL
 ========================================================= */
@@ -12276,7 +12059,6 @@ motionCardsV2.forEach((card) => {
 })();
 
 
-
 /* =========================================================
    EFECTOS PROFESIONALES v3.2
 ========================================================= */
@@ -12372,12 +12154,6 @@ motionCardsV2.forEach((card) => {
   /* PERF: polling removed; metadata/load events already keep orientations updated. */
 })();
 </script>
-
-
-
-
-
-
 
 
 <script>
@@ -12920,8 +12696,6 @@ window.addEventListener('load',()=>{
 <!-- ANDY PERFORMANCE PASS — preserves layout/art direction, reduces GPU/CPU work -->
 
 
-
-
 <script>
 (() => {
   const photos = [...document.querySelectorAll(
@@ -12977,9 +12751,6 @@ window.addEventListener('load',()=>{
 ========================================================= -->
 
 
-
-
-
 <div class="about-photo-lightbox" id="aboutPhotoLightbox" aria-hidden="true">
   <button class="about-photo-lightbox-close" type="button" aria-label="Cerrar fotografía">×</button>
   <button class="about-photo-lightbox-nav prev" type="button" aria-label="Fotografía anterior">←</button>
@@ -12989,7 +12760,6 @@ window.addEventListener('load',()=>{
   <button class="about-photo-lightbox-nav next" type="button" aria-label="Siguiente fotografía">→</button>
   <div class="about-photo-lightbox-count"></div>
 </div>
-
 
 
 <script id="andy-about-lightbox-js-v17">
@@ -13275,10 +13045,6 @@ window.addEventListener('load',()=>{
 </script>
 
 
-
-
-
-
 <script id="andy-design-showcase-js-v36-trackpad-swipe">
 (() => {
   const section=document.querySelector('.design-showcase'); if(!section)return;
@@ -13437,7 +13203,6 @@ window.addEventListener('load',()=>{
   render();
 })();
 </script>
-
 
 
 <script id="andy-nav-controller-v44">
@@ -14230,9 +13995,6 @@ window.addEventListener('load',()=>{
 </script>
 
 
-
-
-
 <style id="andy-final-layout-fixes-v79">
 /* v79 — navegación limpia entre secciones + footer compacto */
 @media (min-width:901px){
@@ -14319,7 +14081,6 @@ window.addEventListener('load',()=>{
   resume();
 })();
 </script>
-
 
 
 <style id="andy-iphone16-polish-v80">
@@ -15247,9 +15008,6 @@ window.addEventListener('load',()=>{
 </script>
 
 
-
-
-
 <script id="andy-vp-lightbox-click-final-js">
 (() => {
   const section = document.getElementById('design');
@@ -15546,8 +15304,6 @@ window.addEventListener('load',()=>{
 <!-- ANDY SPEED PATCH v11 -->
 
 
-
-
 <script id="andy-performance-repair-final-js">
 (() => {
   const isMobile =
@@ -15763,98 +15519,6 @@ window.addEventListener('load',()=>{
 })();
 </script>
 
-
-<style id="andy-infografias-absolute-final-fix">
-/* =========================================================
-   ABSOLUTE FINAL OVERRIDE — INFOGRAFÍAS
-   Esta regla va AL FINAL del documento para ganar contra
-   todos los estilos anteriores del carrusel.
-========================================================= */
-
-/* Ambas infografías */
-#design .design-showcase-card[data-title="Rufino Tamayo"],
-#design .design-showcase-card[data-title="La Nutrición moderna"]{
-  aspect-ratio:9 / 16 !important;
-  width:min(17.5vw,245px) !important;
-  height:auto !important;
-  max-width:245px !important;
-  max-height:none !important;
-  min-height:0 !important;
-  background:#070707 !important;
-}
-
-/* Imagen completa, sin recorte */
-#design .design-showcase-card[data-title="Rufino Tamayo"] img,
-#design .design-showcase-card[data-title="La Nutrición moderna"] img{
-  width:100% !important;
-  height:100% !important;
-  max-height:none !important;
-  padding:5px !important;
-  object-fit:contain !important;
-  object-position:center !important;
-}
-
-/* Cuando están seleccionadas al centro */
-#design .design-showcase-card[data-title="Rufino Tamayo"][data-pos="0"],
-#design .design-showcase-card[data-title="La Nutrición moderna"][data-pos="0"]{
-  width:min(19vw,265px) !important;
-  max-width:265px !important;
-}
-
-/* Laterales inmediatas */
-#design .design-showcase-card[data-title="Rufino Tamayo"][data-pos="-1"],
-#design .design-showcase-card[data-title="Rufino Tamayo"][data-pos="1"],
-#design .design-showcase-card[data-title="La Nutrición moderna"][data-pos="-1"],
-#design .design-showcase-card[data-title="La Nutrición moderna"][data-pos="1"]{
-  width:min(17vw,235px) !important;
-  max-width:235px !important;
-}
-
-/* Laptop baja */
-@media (min-width:901px) and (max-height:820px){
-  #design .design-showcase-card[data-title="Rufino Tamayo"],
-  #design .design-showcase-card[data-title="La Nutrición moderna"]{
-    width:min(15.5vw,205px) !important;
-    max-width:205px !important;
-  }
-
-  #design .design-showcase-card[data-title="Rufino Tamayo"][data-pos="0"],
-  #design .design-showcase-card[data-title="La Nutrición moderna"][data-pos="0"]{
-    width:min(17vw,225px) !important;
-    max-width:225px !important;
-  }
-}
-
-/* Tablet */
-@media (max-width:900px){
-  #design .design-showcase-card[data-title="Rufino Tamayo"],
-  #design .design-showcase-card[data-title="La Nutrición moderna"]{
-    width:min(34vw,225px) !important;
-    max-width:225px !important;
-  }
-
-  #design .design-showcase-card[data-title="Rufino Tamayo"][data-pos="0"],
-  #design .design-showcase-card[data-title="La Nutrición moderna"][data-pos="0"]{
-    width:min(39vw,245px) !important;
-    max-width:245px !important;
-  }
-}
-
-/* Celular */
-@media (max-width:700px){
-  #design .design-showcase-card[data-title="Rufino Tamayo"],
-  #design .design-showcase-card[data-title="La Nutrición moderna"]{
-    width:min(47vw,205px) !important;
-    max-width:205px !important;
-  }
-
-  #design .design-showcase-card[data-title="Rufino Tamayo"][data-pos="0"],
-  #design .design-showcase-card[data-title="La Nutrición moderna"][data-pos="0"]{
-    width:min(52vw,220px) !important;
-    max-width:220px !important;
-  }
-}
-</style>
 
 </body>
 </html>
